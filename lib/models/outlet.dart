@@ -1,54 +1,61 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'outlet.g.dart';
-
-@JsonSerializable()
-class HoursOfOperation {
-  final String day; // 'Monday', 'Tuesday', etc.
-  final String open; // '10:00 AM'
-  final String close; // '7:00 PM'
-  final bool isClosed;
-
-  HoursOfOperation({
-    required this.day,
-    required this.open,
-    required this.close,
-    this.isClosed = false,
-  });
-
-  factory HoursOfOperation.fromJson(Map<String, dynamic> json) =>
-      _$HoursOfOperationFromJson(json);
-  Map<String, dynamic> toJson() => _$HoursOfOperationToJson(this);
-}
-
-@JsonSerializable()
 class Outlet {
   final String id;
   final String name;
   final String logo;
-  final double rating; // 0-5
+  final String campusLocation;
+  final double rating;
   final int ratingCount;
   final bool isOpen;
-  final List<HoursOfOperation> hoursOfOperation;
-  final String cuisineType; // 'Italian, Fast Food'
-  final String campusLocation; // 'Near Library'
-  final double latitude;
-  final double longitude;
+  final String openingTime;
+  final String closingTime;
 
   Outlet({
     required this.id,
     required this.name,
     required this.logo,
+    required this.campusLocation,
     required this.rating,
     required this.ratingCount,
     required this.isOpen,
-    required this.hoursOfOperation,
-    required this.cuisineType,
-    required this.campusLocation,
-    required this.latitude,
-    required this.longitude,
+    required this.openingTime,
+    required this.closingTime,
   });
 
-  factory Outlet.fromJson(Map<String, dynamic> json) => _$OutletFromJson(json);
-  Map<String, dynamic> toJson() => _$OutletToJson(this);
+  // Compatibility getters
+  String get hoursOfOperation => '$openingTime - $closingTime';
+  String get cuisineType => 'Campus Dining'; // Default value
+
+  factory Outlet.fromJson(Map<String, dynamic> json) {
+    try {
+      return Outlet(
+        id: json['id']?.toString() ?? '',
+        name: json['name']?.toString() ?? 'Unknown Outlet',
+        logo: json['logo']?.toString() ?? '',
+        campusLocation: json['campusLocation']?.toString() ?? 'Campus',
+        rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
+        ratingCount: (json['ratingCount'] as num?)?.toInt() ?? 0,
+        isOpen: json['isOpen'] as bool? ?? true,
+        // Handle the case where openingTime/closingTime might be missing or inside hoursOfOperation
+        openingTime: json['openingTime']?.toString() ?? '8:00 AM',
+        closingTime: json['closingTime']?.toString() ?? '8:00 PM',
+      );
+    } catch (e) {
+      print('Error parsing Outlet: $e JSON: $json');
+      rethrow;
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'logo': logo,
+      'campusLocation': campusLocation,
+      'rating': rating,
+      'ratingCount': ratingCount,
+      'isOpen': isOpen,
+      'openingTime': openingTime,
+      'closingTime': closingTime,
+    };
+  }
 }

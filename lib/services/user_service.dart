@@ -1,42 +1,77 @@
+import 'database_service.dart';
 import '../models/index.dart';
 
 class UserService {
-  User? _user;
-
-  UserService({User? user}) : _user = user;
-
   Future<User?> updateProfile({
     required String userId,
     String? name,
     String? phone,
     String? profilePhoto,
   }) async {
-    if (_user == null) return null;
+    try {
+      final db = await DatabaseService.db;
+      final collection = db.collection(DatabaseService.usersCollection);
 
-    _user = _user!.copyWith(
-      name: name ?? _user!.name,
-      phone: phone ?? _user!.phone,
-      profilePhoto: profilePhoto ?? _user!.profilePhoto,
-    );
+      final updateData = <String, dynamic>{};
+      if (name != null) updateData['name'] = name;
+      if (phone != null) updateData['phone'] = phone;
+      if (profilePhoto != null) updateData['profilePhoto'] = profilePhoto;
 
-    return _user;
+      await collection.updateOne(
+        {'id': userId},
+        {'\$set': updateData},
+        upsert: true,
+      );
+
+      final updatedUser = await collection.findOne({'id': userId});
+      return updatedUser != null ? User.fromJson(updatedUser) : null;
+    } catch (e) {
+      return null;
+    }
   }
 
-  Future<void> setDietaryPreferences(List<String> preferences) async {
-    if (_user == null) return;
-
-    _user = _user!.copyWith(dietaryPreferences: preferences);
+  Future<void> setDietaryPreferences(
+      String userId, List<String> preferences) async {
+    try {
+      final db = await DatabaseService.db;
+      final collection = db.collection(DatabaseService.usersCollection);
+      await collection.updateOne(
+        {'id': userId},
+        {
+          '\$set': {'dietaryPreferences': preferences}
+        },
+        upsert: true,
+      );
+    } catch (e) {
+      // Log error
+    }
   }
 
-  Future<void> setPushNotificationPreferences(bool enabled) async {
-    if (_user == null) return;
-
-    _user = _user!.copyWith(pushNotificationEnabled: enabled);
+  Future<void> setPushNotificationPreferences(
+      String userId, bool enabled) async {
+    try {
+      final db = await DatabaseService.db;
+      final collection = db.collection(DatabaseService.usersCollection);
+      await collection.updateOne(
+        {'id': userId},
+        {
+          '\$set': {'pushNotificationEnabled': enabled}
+        },
+        upsert: true,
+      );
+    } catch (e) {
+      // Log error
+    }
   }
 
-  User? getUser() => _user;
-
-  Future<void> setUser(User user) async {
-    _user = user;
+  Future<User?> getUser(String userId) async {
+    try {
+      final db = await DatabaseService.db;
+      final collection = db.collection(DatabaseService.usersCollection);
+      final user = await collection.findOne({'id': userId});
+      return user != null ? User.fromJson(user) : null;
+    } catch (e) {
+      return null;
+    }
   }
 }

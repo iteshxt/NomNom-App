@@ -4,27 +4,42 @@ import '../services/index.dart';
 import 'service_providers.dart';
 import 'auth_provider.dart';
 
+// Provider to manually trigger a refresh of order history
+final orderHistoryTriggerProvider = StateProvider<int>((ref) => 0);
+
 // Order History Provider
-final orderHistoryProvider = FutureProvider<List<Order>>((ref) async {
+final orderHistoryProvider = StreamProvider<List<Order>>((ref) async* {
+  ref.watch(orderHistoryTriggerProvider); // Watch for manual triggers
   final user = ref.watch(authStateProvider);
-  final orderService = ref.read(orderServiceProvider);
+  final orderService = ref.watch(orderServiceProvider);
 
-  if (user == null) return [];
+  if (user == null) {
+    yield [];
+    return;
+  }
 
-  return await orderService.getOrderHistory(user.id);
+  // Polling every 10 seconds for history updates
+  while (true) {
+    try {
+      final orders = await orderService.getOrderHistory(user.id);
+      yield orders;
+    } catch (e) {
+      // Keep existing data on error or yield empty
+    }
+    await Future.delayed(const Duration(seconds: 10));
+  }
 });
 
 // Order Tracking Provider
 final orderTrackingProvider =
-    StateNotifierProvider<OrderTrackingNotifier, Map<String, OrderTracking>>(
-        (ref) {
+    StateNotifierProvider<OrderTrackingNotifier, Map<String, Order>>((ref) {
   final orderService = ref.watch(orderServiceProvider);
   return OrderTrackingNotifier(orderService);
 });
 
 // Specific Order Tracking Provider
 final specificOrderTrackingProvider =
-    StreamProvider.family<OrderTracking?, String>((ref, orderId) async* {
+    StreamProvider.family<Order?, String>((ref, orderId) async* {
   final orderService = ref.watch(orderServiceProvider);
 
   // Polling every 3 seconds for order status updates
@@ -36,7 +51,7 @@ final specificOrderTrackingProvider =
 });
 
 // Create Order Provider
-class OrderTrackingNotifier extends StateNotifier<Map<String, OrderTracking>> {
+class OrderTrackingNotifier extends StateNotifier<Map<String, Order>> {
   final OrderService _orderService;
 
   OrderTrackingNotifier(this._orderService) : super({});
@@ -59,7 +74,7 @@ class OrderTrackingNotifier extends StateNotifier<Map<String, OrderTracking>> {
     );
   }
 
-  Future<OrderTracking?> getOrderTracking(String orderId) async {
+  Future<Order?> getOrderTracking(String orderId) async {
     return await _orderService.getOrderTracking(orderId);
   }
 

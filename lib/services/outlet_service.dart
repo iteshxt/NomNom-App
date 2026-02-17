@@ -1,48 +1,57 @@
-import 'dart:convert';
-import 'package:flutter/services.dart';
+import 'database_service.dart';
 import '../models/index.dart';
 
 class OutletService {
-  List<Outlet> _outlets = [];
-  bool _loaded = false;
-
-  Future<void> loadOutlets() async {
-    if (_loaded) return;
-
-    try {
-      final jsonString =
-          await rootBundle.loadString('assets/data/outlets.json');
-      final jsonData = jsonDecode(jsonString) as List;
-
-      _outlets = jsonData
-          .map((item) => Outlet.fromJson(item as Map<String, dynamic>))
-          .toList();
-
-      _loaded = true;
-    } catch (e) {
-      _outlets = [];
-    }
-  }
-
   Future<List<Outlet>> getOutlets() async {
-    await loadOutlets();
-    return _outlets;
+    try {
+      print('OutletService: Fetching outlets...');
+      final db = await DatabaseService.db;
+      print('OutletService: Connected to DB: ${db.databaseName}');
+      final collection = db.collection(DatabaseService.outletsCollection);
+      print('OutletService: Collection: ${collection.collectionName}');
+      final list = await collection.find().toList();
+      print('OutletService: Found ${list.length} documents');
+      final outlets = list.map((item) => Outlet.fromJson(item)).toList();
+      print('OutletService: Parsed ${outlets.length} outlets');
+      return outlets;
+    } catch (e, stackTrace) {
+      print('OutletService Error: $e');
+      print('StackTrace: $stackTrace');
+      rethrow; // Allow provider to handle the error state
+    }
   }
 
   Future<Outlet?> getOutletById(String id) async {
-    await loadOutlets();
     try {
-      return _outlets.firstWhere((outlet) => outlet.id == id);
-    } catch (e) {
+      final db = await DatabaseService.db;
+      final collection = db.collection(DatabaseService.outletsCollection);
+      final item = await collection.findOne({'id': id});
+      if (item != null) {
+        return Outlet.fromJson(item);
+      }
       return null;
+    } catch (e) {
+      rethrow;
     }
   }
 
-  List<Outlet> searchOutlets(String query) {
-    return _outlets
-        .where((outlet) =>
-            outlet.name.toLowerCase().contains(query.toLowerCase()) ||
-            outlet.cuisineType.toLowerCase().contains(query.toLowerCase()))
-        .toList();
+  Future<List<Outlet>> searchOutlets(String query) async {
+    try {
+      final db = await DatabaseService.db;
+      final collection = db.collection(DatabaseService.outletsCollection);
+      final list = await collection.find({
+        '\$or': [
+          {
+            'name': {'\$regex': query, '\$options': 'i'}
+          },
+          {
+            'cuisineType': {'\$regex': query, '\$options': 'i'}
+          },
+        ]
+      }).toList();
+      return list.map((item) => Outlet.fromJson(item)).toList();
+    } catch (e) {
+      rethrow;
+    }
   }
 }

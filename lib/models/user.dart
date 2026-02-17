@@ -1,36 +1,49 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'user.g.dart';
-
-@JsonSerializable()
 class User {
   final String id;
   final String email;
   final String name;
   final String phone;
   final String? profilePhoto;
-  final List<String> dietaryPreferences;
   final bool pushNotificationEnabled;
-  final String? lastOrderId;
-  final bool isGuest;
-
-  // Alias for compatibility
-  bool get pushNotificationsEnabled => pushNotificationEnabled;
+  final List<String>? dietaryPreferences;
 
   User({
     required this.id,
     required this.email,
     required this.name,
-    required this.phone,
+    this.phone = '',
     this.profilePhoto,
-    this.dietaryPreferences = const [],
     this.pushNotificationEnabled = true,
-    this.lastOrderId,
-    this.isGuest = false,
+    this.dietaryPreferences,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
-  Map<String, dynamic> toJson() => _$UserToJson(this);
+  // Compatibility getters
+  bool get pushNotificationsEnabled => pushNotificationEnabled;
+  bool get isGuest => false; // Users from Firebase are not guests
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'] as String,
+      email: json['email'] as String,
+      name: json['name'] as String,
+      phone: json['phone'] as String? ?? '',
+      profilePhoto: json['profilePhoto'] as String?,
+      pushNotificationEnabled: json['pushNotificationEnabled'] as bool? ?? true,
+      dietaryPreferences: (json['dietaryPreferences'] as List?)?.cast<String>(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'name': name,
+      'phone': phone,
+      'profilePhoto': profilePhoto,
+      'pushNotificationEnabled': pushNotificationEnabled,
+      'dietaryPreferences': dietaryPreferences,
+    };
+  }
 
   User copyWith({
     String? id,
@@ -38,10 +51,8 @@ class User {
     String? name,
     String? phone,
     String? profilePhoto,
-    List<String>? dietaryPreferences,
     bool? pushNotificationEnabled,
-    String? lastOrderId,
-    bool? isGuest,
+    List<String>? dietaryPreferences,
   }) {
     return User(
       id: id ?? this.id,
@@ -49,11 +60,9 @@ class User {
       name: name ?? this.name,
       phone: phone ?? this.phone,
       profilePhoto: profilePhoto ?? this.profilePhoto,
-      dietaryPreferences: dietaryPreferences ?? this.dietaryPreferences,
       pushNotificationEnabled:
           pushNotificationEnabled ?? this.pushNotificationEnabled,
-      lastOrderId: lastOrderId ?? this.lastOrderId,
-      isGuest: isGuest ?? this.isGuest,
+      dietaryPreferences: dietaryPreferences ?? this.dietaryPreferences,
     );
   }
 }

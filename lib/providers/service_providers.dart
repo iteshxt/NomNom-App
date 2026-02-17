@@ -2,10 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/index.dart';
 
 // Service Providers
-final localStorageServiceProvider = Provider((ref) {
-  return LocalStorageService();
-});
-
 final authServiceProvider = Provider((ref) {
   return AuthService(
     serverClientId:

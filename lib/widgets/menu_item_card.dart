@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/index.dart';
 import '../../config/theme.dart';
+import '../../providers/index.dart';
 
-class MenuItemCard extends StatelessWidget {
+class MenuItemCard extends ConsumerWidget {
   final MenuItem item;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final bool showBadge;
 
   const MenuItemCard({
     required this.item,
-    required this.onTap,
+    this.onTap,
     this.showBadge = true,
     super.key,
   });
@@ -21,92 +23,98 @@ class MenuItemCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image container
-            Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(12),
-                    ),
-                  ),
-                  child: Image.network(
-                    item.image,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Center(
-                        child: Icon(
-                          Icons.restaurant,
-                          size: 48,
-                          color: Colors.grey[400],
-                        ),
-                      );
-                    },
-                  ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentOrder = ref.watch(currentOrderProvider);
+    final outletId = ref.watch(selectedOutletProvider);
+
+    // Find if this item is in the current order
+    final orderItemIndex =
+        currentOrder.items.indexWhere((i) => i.itemId == item.id);
+    final orderItem =
+        orderItemIndex != -1 ? currentOrder.items[orderItemIndex] : null;
+    final quantity = orderItem?.quantity ?? 0;
+
+    return Card(
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image container
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
                 ),
-                // Availability badge
-                if (!item.availability)
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(12),
-                        ),
+                child: Image.network(
+                  item.image,
+                  height: 120,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 120,
+                      color: Colors.grey[100],
+                      child: Icon(
+                        Icons.restaurant,
+                        size: 40,
+                        color: Colors.grey[400],
                       ),
-                      child: Center(
-                        child: Text(
-                          'Out of Stock',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                        ),
+                    );
+                  },
+                ),
+              ),
+              // Availability overlay
+              if (!item.availability)
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.6),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
                       ),
                     ),
-                  ),
-                // Tag badge
-                if (showBadge && item.tags.isNotEmpty)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryColor,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
+                    child: const Center(
                       child: Text(
-                        _getTagDisplay(),
-                        style: const TextStyle(
+                        'NOT AVAILABLE',
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 10,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ),
-              ],
-            ),
-            // Content
-            Padding(
+                ),
+              // Tag badge
+              if (showBadge && item.tags.isNotEmpty)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _getTagDisplay(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          // Content
+          Expanded(
+            child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,16 +123,23 @@ class MenuItemCard extends StatelessWidget {
                     item.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    item.description,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
+                  Expanded(
+                    child: Text(
+                      item.description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                        height: 1.2,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -132,36 +147,138 @@ class MenuItemCard extends StatelessWidget {
                     children: [
                       Text(
                         '₹${item.price.toStringAsFixed(0)}',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: AppTheme.primaryColor,
-                              fontWeight: FontWeight.w700,
-                            ),
+                        style: const TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                        ),
                       ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.access_time_rounded,
-                            size: 12,
-                            color: Colors.grey[500],
+                      if (item.availability)
+                        _buildQuantitySelector(context, ref, quantity, outletId)
+                      else
+                        const Text(
+                          'OFFLINE',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${item.prepTime}m',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
-                                ?.copyWith(
-                                  color: Colors.grey[600],
-                                ),
-                          ),
-                        ],
-                      ),
+                        ),
                     ],
                   ),
                 ],
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuantitySelector(
+      BuildContext context, WidgetRef ref, int quantity, String? outletId) {
+    if (quantity == 0) {
+      return SizedBox(
+        height: 32,
+        child: ElevatedButton(
+          onPressed: outletId == null
+              ? null
+              : () {
+                  final orderItem = OrderItem(
+                    menuItemId: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: 1,
+                    image: item.image,
+                  );
+                  ref
+                      .read(currentOrderProvider.notifier)
+                      .addItem(orderItem, outletId);
+                },
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+            foregroundColor: AppTheme.primaryColor,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: AppTheme.primaryColor, width: 1),
+            ),
+          ),
+          child: const Text(
+            'ADD',
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      height: 32,
+      decoration: BoxDecoration(
+        color: AppTheme.primaryColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _ActionButton(
+            icon: Icons.remove,
+            onTap: () {
+              // Find the item to update
+              final currentOrder = ref.read(currentOrderProvider);
+              final orderItem =
+                  currentOrder.items.firstWhere((i) => i.itemId == item.id);
+              ref
+                  .read(currentOrderProvider.notifier)
+                  .updateQuantity(orderItem, quantity - 1);
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              quantity.toString(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          _ActionButton(
+            icon: Icons.add,
+            onTap: () {
+              final currentOrder = ref.read(currentOrderProvider);
+              final orderItem =
+                  currentOrder.items.firstWhere((i) => i.itemId == item.id);
+              ref
+                  .read(currentOrderProvider.notifier)
+                  .updateQuantity(orderItem, quantity + 1);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _ActionButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 30,
+        alignment: Alignment.center,
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 16,
         ),
       ),
     );

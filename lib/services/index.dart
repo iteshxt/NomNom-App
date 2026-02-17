@@ -1,5 +1,3 @@
-export 'local_storage_service.dart';
-
 export 'auth_service.dart';
 export 'outlet_service.dart';
 export 'menu_service.dart';

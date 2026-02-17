@@ -73,8 +73,10 @@ class AppTheme {
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(32),
           ),
+          elevation: 4,
+          shadowColor: AppTheme.primaryColor.withOpacity(0.3),
           textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -87,8 +89,10 @@ class AppTheme {
           side: const BorderSide(color: primaryColor),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(32),
           ),
+          elevation: 4,
+          shadowColor: AppTheme.primaryColor.withOpacity(0.3),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

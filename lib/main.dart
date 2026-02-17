@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'config/routes.dart';
 import 'config/theme.dart';
 
+import 'services/database_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive for local storage
-  await Hive.initFlutter();
+  // Initialize MongoDB
+  try {
+    await DatabaseService.connect();
+  } catch (e) {
+    debugPrint('MongoDB initialization error: $e');
+  }
 
-  // Initialize Firebase (optional - only if you have firebase_options.dart)
+  // Initialize Firebase
   try {
     await Firebase.initializeApp();
   } catch (e) {

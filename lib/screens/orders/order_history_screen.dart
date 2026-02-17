@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import '../../config/theme.dart';
 import '../../models/index.dart';
 import '../../providers/index.dart';
-import '../../widgets/index.dart';
 
 class OrderHistoryScreen extends ConsumerWidget {
   const OrderHistoryScreen({super.key});
@@ -47,9 +46,6 @@ class OrderHistoryScreen extends ConsumerWidget {
               ],
             ),
           ),
-        ),
-        bottomNavigationBar: const CustomBottomNav(
-          currentItem: BottomNavItem.orders,
         ),
       );
     }
@@ -119,26 +115,30 @@ class OrderHistoryScreen extends ConsumerWidget {
                   );
                 }
 
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: orders.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final order = orders[index];
-                    return _OrderHistoryCard(
-                      order: order,
-                      onTap: () {
-                        context.go('/home/order-tracking/${order.id}');
-                      },
-                    );
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    ref.read(orderHistoryTriggerProvider.notifier).state++;
                   },
+                  child: ListView.separated(
+                    padding: const EdgeInsets.only(
+                        left: 16, right: 16, top: 16, bottom: 100),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemCount: orders.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final order = orders[index];
+                      return _OrderHistoryCard(
+                        order: order,
+                        onTap: () {
+                          context.go('/home/order-tracking/${order.id}');
+                        },
+                      );
+                    },
+                  ),
                 );
               },
             ),
-      bottomNavigationBar: const CustomBottomNav(
-        currentItem: BottomNavItem.orders,
-      ),
     );
   }
 }
@@ -260,30 +260,26 @@ class _OrderHistoryCard extends StatelessWidget {
 
   String _statusLabel(OrderStatus status) {
     switch (status) {
-      case OrderStatus.pending:
-        return 'Pending';
       case OrderStatus.confirmed:
         return 'Confirmed';
       case OrderStatus.preparing:
         return 'Preparing';
       case OrderStatus.ready:
         return 'Ready';
-      case OrderStatus.pickedUp:
+      case OrderStatus.fulfilled:
         return 'Picked Up';
     }
   }
 
   Color _statusColor(OrderStatus status) {
     switch (status) {
-      case OrderStatus.pending:
-        return Colors.orange;
       case OrderStatus.confirmed:
         return Colors.blue;
       case OrderStatus.preparing:
         return Colors.amber;
       case OrderStatus.ready:
-        return Colors.amber;
-      case OrderStatus.pickedUp:
+        return Colors.green;
+      case OrderStatus.fulfilled:
         return Colors.green;
     }
   }

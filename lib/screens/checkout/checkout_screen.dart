@@ -5,7 +5,6 @@ import '../../config/theme.dart';
 
 import '../../models/index.dart';
 import '../../providers/index.dart';
-import '../../widgets/index.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   final String? outletId;
@@ -37,8 +36,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final outletAsync =
         outletId != null ? ref.watch(outletProvider(outletId)) : null;
 
-    final totalWithTax = total * 1.05;
-    const estimatedPickupTime = 20;
+    final totalFinal = total;
 
     if (items.isEmpty) {
       return Scaffold(
@@ -96,14 +94,23 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey[200]!),
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.white,
                           ),
                           child: Row(
                             children: [
-                              const Icon(
-                                Icons.restaurant,
-                                color: AppTheme.primaryColor,
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryColor
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.restaurant_rounded,
+                                  color: AppTheme.primaryColor,
+                                ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -114,17 +121,45 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                       outlet.name,
                                       style: Theme.of(context)
                                           .textTheme
-                                          .titleSmall,
+                                          .titleSmall
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.bold),
                                     ),
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: 2),
                                     Text(
                                       outlet.campusLocation,
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodySmall
-                                          ?.copyWith(
-                                            color: Colors.grey[600],
-                                          ),
+                                          ?.copyWith(color: Colors.grey[600]),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.star_rounded,
+                                            color: Colors.amber, size: 14),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${outlet.rating}',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                  fontWeight: FontWeight.w600),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Icon(Icons.access_time_rounded,
+                                            color: Colors.grey, size: 14),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          outlet.hoursOfOperation,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                  color: Colors.grey[600]),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -144,14 +179,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           decoration: BoxDecoration(
                             color: Colors.grey[50],
                             border: Border.all(color: Colors.grey[200]!),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: ListView.separated(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: items.length,
                             separatorBuilder: (context, index) =>
-                                const Divider(),
+                                const Divider(height: 24),
                             itemBuilder: (context, index) {
                               final item = items[index];
                               return Row(
@@ -164,10 +199,21 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${item.quantity}x ${item.itemName}',
+                                          item.itemName,
                                           style: Theme.of(context)
                                               .textTheme
-                                              .bodyMedium,
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                  fontWeight: FontWeight.w600),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '${item.quantity} x ₹${item.price.toStringAsFixed(0)}',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                  color: Colors.grey[600]),
                                         ),
                                         if (item.specialInstructions != null &&
                                             item.specialInstructions!
@@ -184,7 +230,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                                   .bodySmall
                                                   ?.copyWith(
                                                     fontStyle: FontStyle.italic,
-                                                    color: Colors.grey[600],
+                                                    color: AppTheme.primaryColor
+                                                        .withValues(alpha: 0.7),
                                                   ),
                                             ),
                                           ),
@@ -198,7 +245,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                         .textTheme
                                         .bodyMedium
                                         ?.copyWith(
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                   ),
                                 ],
@@ -213,88 +260,42 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 12),
-                        _SummaryRow(
-                          label: 'Subtotal',
-                          value: '₹${total.toStringAsFixed(0)}',
-                        ),
-                        const SizedBox(height: 8),
-                        _SummaryRow(
-                          label: 'Taxes (5%)',
-                          value: '₹${(total * 0.05).toStringAsFixed(0)}',
-                        ),
-                        const SizedBox(height: 12),
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            color:
+                                AppTheme.primaryColor.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                                color: AppTheme.primaryColor
+                                    .withValues(alpha: 0.1)),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Total',
+                                'Final Total',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium
                                     ?.copyWith(
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: FontWeight.bold,
                                     ),
                               ),
                               Text(
-                                '₹${totalWithTax.toStringAsFixed(0)}',
+                                '₹${totalFinal.toStringAsFixed(0)}',
                                 style: Theme.of(context)
                                     .textTheme
-                                    .titleMedium
+                                    .titleLarge
                                     ?.copyWith(
                                       color: AppTheme.primaryColor,
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: FontWeight.w800,
                                     ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 24),
-                        // Estimated Pickup Time
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            border: Border.all(color: Colors.blue[200]!),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.access_time_rounded,
-                                color: Colors.blue[600],
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Estimated Pickup Time',
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                  Text(
-                                    '~$estimatedPickupTime minutes',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleSmall
-                                        ?.copyWith(
-                                          color: Colors.blue[600],
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
                         // Place Order Button
                         SizedBox(
                           width: double.infinity,
@@ -309,15 +310,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                     final total = widget.totalAmount ?? 0.0;
                                     final outletId = widget.outletId ??
                                         ref.read(selectedOutletProvider);
-                                    final totalWithTax = total * 1.05;
+                                    final totalFinal = total;
 
                                     if (authState != null &&
                                         outletId != null &&
                                         items.isNotEmpty) {
                                       try {
-                                        // Cast dynamic items to OrderItem if needed (assuming items are already OrderItem or compatible)
-                                        // Since we refactored, let's assume widget.items passes List<OrderItem> really.
-                                        // If `widget.items` is `List<dynamic>`, we cast.
                                         final orderItems =
                                             items.cast<OrderItem>();
 
@@ -329,9 +327,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                               userId: authState.id,
                                               outletId: outletId,
                                               items: orderItems,
-                                              total: totalWithTax,
+                                              total: totalFinal,
                                               estimatedPickupTime: 20,
                                             );
+
+                                        // Trigger immediate refresh of order history
+                                        ref
+                                            .read(orderHistoryTriggerProvider
+                                                .notifier)
+                                            .state++;
 
                                         // Clear current order (if using currentOrderProvider)
                                         ref
@@ -368,14 +372,23 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                       );
                                     }
                                   },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(32),
+                              ),
+                              elevation: 4,
+                              shadowColor:
+                                  AppTheme.primaryColor.withValues(alpha: 0.3),
+                            ),
                             child: _isProcessing
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,
                                     child: CircularProgressIndicator(
-                                        strokeWidth: 2),
+                                        strokeWidth: 2, color: Colors.white),
                                   )
-                                : const Text('Place Order'),
+                                : const Text('Confirm and Place Order'),
                           ),
                         ),
                       ],
@@ -385,38 +398,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               )
             : const SizedBox(),
       ),
-      bottomNavigationBar: const CustomBottomNav(
-        currentItem: BottomNavItem.menu,
-      ),
-    );
-  }
-}
-
-class _SummaryRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _SummaryRow({
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-      ],
     );
   }
 }

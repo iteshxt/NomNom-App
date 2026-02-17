@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../models/index.dart';
 import '../../config/theme.dart';
 
@@ -18,14 +17,7 @@ class OutletInfoCard extends StatelessWidget {
     if (!outlet.isOpen) return 'Currently Closed';
 
     try {
-      final now = DateTime.now();
-      final today = DateFormat('EEEE').format(now);
-
-      final todayHours = outlet.hoursOfOperation.firstWhere(
-          (h) => h.day == today,
-          orElse: () => outlet.hoursOfOperation[0]);
-
-      return 'Open • ${todayHours.open} - ${todayHours.close}';
+      return 'Open • ${outlet.hoursOfOperation}';
     } catch (e) {
       return 'Open now';
     }
@@ -101,43 +93,59 @@ class OutletInfoCard extends StatelessWidget {
 
               // Status and location
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Hours and status
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.access_time_rounded,
-                        size: 16,
-                        color: statusColor,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        _getCurrentStatus(),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: statusColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                      ),
-                    ],
+                  Expanded(
+                    flex: 3,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.access_time_rounded,
+                          size: 16,
+                          color: statusColor,
+                        ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            _getCurrentStatus(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: statusColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-
+                  const SizedBox(width: 8),
                   // Location
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on_rounded,
-                        size: 16,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        outlet.campusLocation,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[600],
-                            ),
-                      ),
-                    ],
+                  Expanded(
+                    flex: 2,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Icon(
+                          Icons.location_on_rounded,
+                          size: 16,
+                          color: Colors.grey[600],
+                        ),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            outlet.campusLocation,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

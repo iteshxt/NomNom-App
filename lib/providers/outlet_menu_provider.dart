@@ -7,7 +7,10 @@ final selectedOutletProvider = StateProvider<String?>((ref) {
   return null;
 });
 
-// Outlets Provider
+// Selected Category Provider
+final selectedCategoryProvider = StateProvider<String>((ref) {
+  return 'All';
+});
 final outletsProvider = FutureProvider<List<Outlet>>((ref) async {
   final outletService = ref.watch(outletServiceProvider);
   return await outletService.getOutlets();

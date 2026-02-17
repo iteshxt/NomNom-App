@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 
 import '../../providers/index.dart';
-import '../../widgets/index.dart';
 
 class OrderConfirmationScreen extends ConsumerWidget {
   final String orderId;
@@ -139,9 +138,9 @@ class OrderConfirmationScreen extends ConsumerWidget {
                         ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: order.items?.length ?? 0,
+                          itemCount: order.items.length,
                           itemBuilder: (context, index) {
-                            final item = order.items![index];
+                            final item = order.items[index];
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Row(
@@ -266,28 +265,11 @@ class OrderConfirmationScreen extends ConsumerWidget {
                       child: const Text('Track Order'),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  // Continue Shopping Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        context.go('/home');
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: const Text('Continue Shopping'),
-                    ),
-                  ),
                 ],
               ),
             ),
           );
         },
-      ),
-      bottomNavigationBar: const CustomBottomNav(
-        currentItem: BottomNavItem.orders,
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../models/index.dart';
 import '../../providers/index.dart';
-import '../../widgets/index.dart';
 
 class OrderTrackingScreen extends ConsumerStatefulWidget {
   final String orderId;
@@ -189,7 +188,8 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    tracking.outletLocation,
+                                    tracking.outletLocation ??
+                                        'Campus Location',
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodySmall
@@ -205,7 +205,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
                   ),
                   const SizedBox(height: 24),
                   // Order Summary
-                  if (tracking.items != null && tracking.items!.isNotEmpty)
+                  if (tracking.items.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -227,9 +227,9 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
                           child: ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: tracking.items!.length,
+                            itemCount: tracking.items.length,
                             itemBuilder: (context, index) {
-                              final item = tracking.items![index];
+                              final item = tracking.items[index];
                               return Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 8),
@@ -293,15 +293,20 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Order marked as picked up! Thank you for ordering.'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                          context.go('/home');
+                        onPressed: () async {
+                          await ref
+                              .read(orderTrackingProvider.notifier)
+                              .markAsPickedUp(widget.orderId);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Order marked as picked up! Thank you for ordering.'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                            context.go('/home');
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -343,153 +348,140 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
           );
         },
       ),
-      bottomNavigationBar: const CustomBottomNav(
-        currentItem: BottomNavItem.orders,
-      ),
     );
   }
 
-  Widget _buildStatusTimeline(BuildContext context, OrderTracking tracking) {
+  Widget _buildStatusTimeline(BuildContext context, Order tracking) {
     final statuses = [
       OrderStatus.confirmed,
       OrderStatus.preparing,
       OrderStatus.ready,
+      OrderStatus.fulfilled,
     ];
 
-    return Column(
-      children: List.generate(
-        statuses.length,
-        (index) {
-          final status = statuses[index];
-          final statusString = status.toString().split('.').last.toUpperCase();
-          final isCompleted = tracking.statusHistory.any(
-            (h) => h.status == statusString,
-          );
-          final isCurrent = tracking.currentStatus == statusString;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.generate(
+          statuses.length,
+          (index) {
+            final status = statuses[index];
+            final statusIndexInList = statuses.indexOf(status);
+            final currentStatusIndex = statuses.indexWhere(
+              (s) => s.toString().split('.').last == tracking.currentStatus,
+            );
 
-          return Column(
-            children: [
-              Row(
+            final isCompleted = statusIndexInList < currentStatusIndex ||
+                tracking.currentStatus == 'fulfilled' &&
+                    status == OrderStatus.fulfilled;
+            final isCurrent = statusIndexInList == currentStatusIndex &&
+                tracking.currentStatus != 'fulfilled';
+
+            return Expanded(
+              child: Column(
                 children: [
-                  // Timeline Dot
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isCompleted
-                          ? Colors.green[500]
-                          : isCurrent
-                              ? AppTheme.primaryColor
-                              : Colors.grey[300],
-                    ),
-                    child: Center(
-                      child: isCompleted
-                          ? const Icon(
-                              Icons.check,
-                              color: Colors.white,
-                              size: 18,
-                            )
-                          : isCurrent
-                              ? Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const SizedBox(),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // Status Details
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _statusLabel(status),
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: isCurrent ? AppTheme.primaryColor : null,
-                              ),
-                        ),
-                        if (isCompleted)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              'Completed',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(color: Colors.green[600]),
-                            ),
-                          )
-                        else if (isCurrent)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              'In Progress...',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: AppTheme.primaryColor,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
+                  Row(
+                    children: [
+                      // Leading Line
+                      if (index != 0)
+                        Expanded(
+                          child: Container(
+                            height: 2,
+                            color: statusIndexInList <= currentStatusIndex
+                                ? AppTheme.primaryColor
+                                : Colors.grey[300],
                           ),
-                      ],
-                    ),
+                        ),
+                      // Dot
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isCompleted ||
+                                  (isCurrent &&
+                                      tracking.currentStatus != 'fulfilled')
+                              ? (isCompleted
+                                  ? Colors.green[500]
+                                  : AppTheme.primaryColor)
+                              : Colors.grey[300],
+                          border: isCurrent
+                              ? Border.all(
+                                  color: AppTheme.primaryColor
+                                      .withValues(alpha: 0.2),
+                                  width: 4)
+                              : null,
+                        ),
+                        child: Center(
+                          child: isCompleted
+                              ? const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 14,
+                                )
+                              : null,
+                        ),
+                      ),
+                      // Trailing Line
+                      if (index != statuses.length - 1)
+                        Expanded(
+                          child: Container(
+                            height: 2,
+                            color: statusIndexInList < currentStatusIndex
+                                ? AppTheme.primaryColor
+                                : Colors.grey[300],
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _statusLabel(status).replaceAll('Your Order', ''),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontSize: 10,
+                          fontWeight: isCurrent || isCompleted
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                          color: isCurrent
+                              ? AppTheme.primaryColor
+                              : isCompleted
+                                  ? Colors.green[700]
+                                  : Colors.grey[600],
+                        ),
                   ),
                 ],
               ),
-              if (index < statuses.length - 1)
-                Padding(
-                  padding: const EdgeInsets.only(left: 17, top: 8, bottom: 8),
-                  child: Container(
-                    width: 2,
-                    height: 32,
-                    color: isCompleted ? Colors.green[500] : Colors.grey[300],
-                  ),
-                ),
-            ],
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
 
   String _statusLabel(OrderStatus status) {
     switch (status) {
-      case OrderStatus.pending:
-        return 'Order Pending';
       case OrderStatus.confirmed:
         return 'Order Confirmed';
       case OrderStatus.preparing:
         return 'Preparing Your Order';
       case OrderStatus.ready:
         return 'Ready for Pickup';
-      case OrderStatus.pickedUp:
+      case OrderStatus.fulfilled:
         return 'Order Picked Up';
     }
   }
 
   String _statusLabelFromString(String status) {
     switch (status) {
-      case 'pending':
-        return 'Order Pending';
       case 'confirmed':
         return 'Order Confirmed';
       case 'preparing':
         return 'Preparing Your Order';
       case 'ready':
         return 'Ready for Pickup';
-      case 'pickedUp':
+      case 'fulfilled':
         return 'Order Picked Up';
       default:
         return 'Unknown Status';

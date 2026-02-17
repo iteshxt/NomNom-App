@@ -13,8 +13,6 @@ export 'home/home_screen.dart';
 
 // Menu & Items
 
-export 'menu/item_detail_screen.dart';
-
 // Cart & Checkout
 export 'checkout/checkout_screen.dart';
 

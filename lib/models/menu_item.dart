@@ -1,8 +1,3 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'menu_item.g.dart';
-
-@JsonSerializable()
 class MenuItem {
   final String id;
   final String outletId;
@@ -10,10 +5,9 @@ class MenuItem {
   final String description;
   final double price;
   final String image;
-  final String category; // 'Pizzas', 'Burgers', etc.
-  final List<String> tags; // ['vegan', 'spicy', 'veg', etc.]
-  final bool availability;
-  final int prepTime; // minutes
+  final String category;
+  final List<String> tags;
+  final bool isAvailable;
 
   MenuItem({
     required this.id,
@@ -23,12 +17,38 @@ class MenuItem {
     required this.price,
     required this.image,
     required this.category,
-    this.tags = const [],
-    this.availability = true,
-    this.prepTime = 15,
+    required this.tags,
+    this.isAvailable = true,
   });
 
-  factory MenuItem.fromJson(Map<String, dynamic> json) =>
-      _$MenuItemFromJson(json);
-  Map<String, dynamic> toJson() => _$MenuItemToJson(this);
+  // Compatibility getter
+  bool get availability => isAvailable;
+
+  factory MenuItem.fromJson(Map<String, dynamic> json) {
+    return MenuItem(
+      id: json['id'] as String,
+      outletId: json['outletId'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String,
+      price: (json['price'] as num).toDouble(),
+      image: json['image'] as String,
+      category: json['category'] as String,
+      tags: (json['tags'] as List).cast<String>(),
+      isAvailable: json['isAvailable'] as bool? ?? true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'outletId': outletId,
+      'name': name,
+      'description': description,
+      'price': price,
+      'image': image,
+      'category': category,
+      'tags': tags,
+      'isAvailable': isAvailable,
+    };
+  }
 }

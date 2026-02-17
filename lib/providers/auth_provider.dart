@@ -9,7 +9,8 @@ final authStateProvider = StateNotifierProvider<AuthStateNotifier, User?>((
   ref,
 ) {
   final authService = ref.watch(authServiceProvider);
-  return AuthStateNotifier(authService);
+  final userService = ref.watch(userServiceProvider);
+  return AuthStateNotifier(authService, userService);
 });
 
 // Guest Mode Provider
@@ -20,8 +21,9 @@ final isGuestModeProvider = StateProvider<bool>((ref) {
 // Auth State Notifier
 class AuthStateNotifier extends StateNotifier<User?> {
   final AuthService _authService;
+  final UserService _userService;
 
-  AuthStateNotifier(this._authService) : super(null) {
+  AuthStateNotifier(this._authService, this._userService) : super(null) {
     _initializeAuth();
   }
 
@@ -29,7 +31,18 @@ class AuthStateNotifier extends StateNotifier<User?> {
     // Listen to Firebase auth changes reactively
     _authService.authStateChanges().listen((firebaseUser) async {
       if (firebaseUser != null) {
-        state = await _authService.getCurrentUser();
+        // First get the basic profile from Firebase
+        final baseUser = await _authService.getCurrentUser();
+        if (baseUser != null) {
+          // Then fetch/sync with MongoDB
+          var mongoUser = await _userService.getUser(baseUser.id);
+          mongoUser ??= await _userService.updateProfile(
+              userId: baseUser.id,
+              name: baseUser.name,
+              profilePhoto: baseUser.profilePhoto,
+            );
+          state = mongoUser ?? baseUser;
+        }
         debugPrint('AuthStateNotifier: User logged in - ${state?.id}');
       } else {
         state = null;

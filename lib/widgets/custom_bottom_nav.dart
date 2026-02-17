@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 
 enum BottomNavItem {
@@ -10,21 +9,17 @@ enum BottomNavItem {
 
 class CustomBottomNav extends StatelessWidget {
   final BottomNavItem currentItem;
+  final Function(int)? onTabTapped;
 
   const CustomBottomNav({
     required this.currentItem,
+    this.onTabTapped,
     super.key,
   });
 
-  void _onTabTapped(BuildContext context, BottomNavItem item) {
-    final routes = {
-      BottomNavItem.menu: '/home',
-      BottomNavItem.orders: '/home/orders',
-      BottomNavItem.profile: '/home/profile',
-    };
-
-    if (currentItem != item) {
-      context.go(routes[item]!);
+  void _handleTabTapped(int index) {
+    if (onTabTapped != null) {
+      onTabTapped!(index);
     }
   }
 
@@ -48,23 +43,29 @@ class CustomBottomNav extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _NavItem(
-                icon: Icons.restaurant_menu_rounded,
-                label: 'Menu',
-                isActive: currentItem == BottomNavItem.menu,
-                onTap: () => _onTabTapped(context, BottomNavItem.menu),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.restaurant_menu_rounded,
+                  label: 'Menu',
+                  isActive: currentItem == BottomNavItem.menu,
+                  onTap: () => _handleTabTapped(0),
+                ),
               ),
-              _NavItem(
-                icon: Icons.receipt_long_rounded,
-                label: 'Orders',
-                isActive: currentItem == BottomNavItem.orders,
-                onTap: () => _onTabTapped(context, BottomNavItem.orders),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.receipt_long_rounded,
+                  label: 'Orders',
+                  isActive: currentItem == BottomNavItem.orders,
+                  onTap: () => _handleTabTapped(1),
+                ),
               ),
-              _NavItem(
-                icon: Icons.person_rounded,
-                label: 'Profile',
-                isActive: currentItem == BottomNavItem.profile,
-                onTap: () => _onTabTapped(context, BottomNavItem.profile),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.person_rounded,
+                  label: 'Profile',
+                  isActive: currentItem == BottomNavItem.profile,
+                  onTap: () => _handleTabTapped(2),
+                ),
               ),
             ],
           ),
@@ -91,6 +92,7 @@ class _NavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

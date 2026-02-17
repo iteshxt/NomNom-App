@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/index.dart';
+import '../models/index.dart';
 import '../providers/index.dart';
+import '../widgets/scaffold_with_navbar.dart';
 
 final routerProvider = Provider((ref) {
   final authState = ref.watch(authStateProvider);
@@ -53,54 +55,65 @@ final routerProvider = Provider((ref) {
         builder: (context, state) => const ForgotPasswordScreen(),
       ),
 
-      // Home & Outlets
-      GoRoute(
-        path: '/home',
-        builder: (context, state) => const HomeScreen(),
-        routes: [
-          // Item Detail
-          GoRoute(
-            path: 'item/:itemId',
-            builder: (context, state) {
-              final itemId = state.pathParameters['itemId']!;
-              return ItemDetailScreen(itemId: itemId);
-            },
+      // Main App Shell with Bottom Navigation
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return ScaffoldWithNavBar(navigationShell: navigationShell);
+        },
+        branches: [
+          // Branch Home
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/home',
+                builder: (context, state) => const HomeScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'checkout',
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>?;
+                      return CheckoutScreen(
+                        outletId: extra?['outletId'] as String?,
+                        items: extra?['items'] as List<OrderItem>?,
+                        totalAmount: extra?['totalAmount'] as double?,
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'order-confirmation/:orderId',
+                    builder: (context, state) {
+                      final orderId = state.pathParameters['orderId']!;
+                      return OrderConfirmationScreen(orderId: orderId);
+                    },
+                  ),
+                  GoRoute(
+                    path: 'order-tracking/:orderId',
+                    builder: (context, state) {
+                      final orderId = state.pathParameters['orderId']!;
+                      return OrderTrackingScreen(orderId: orderId);
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
-
-          // Checkout
-          GoRoute(
-            path: 'checkout',
-            builder: (context, state) => const CheckoutScreen(),
+          // Branch Orders
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/orders',
+                builder: (context, state) => const OrderHistoryScreen(),
+              ),
+            ],
           ),
-
-          // Order Confirmation
-          GoRoute(
-            path: 'order-confirmation/:orderId',
-            builder: (context, state) {
-              final orderId = state.pathParameters['orderId']!;
-              return OrderConfirmationScreen(orderId: orderId);
-            },
-          ),
-
-          // Order Tracking
-          GoRoute(
-            path: 'order-tracking/:orderId',
-            builder: (context, state) {
-              final orderId = state.pathParameters['orderId']!;
-              return OrderTrackingScreen(orderId: orderId);
-            },
-          ),
-
-          // Order History
-          GoRoute(
-            path: 'orders',
-            builder: (context, state) => const OrderHistoryScreen(),
-          ),
-
-          // Profile
-          GoRoute(
-            path: 'profile',
-            builder: (context, state) => const ProfileScreen(),
+          // Branch Profile
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                builder: (context, state) => const ProfileScreen(),
+              ),
+            ],
           ),
         ],
       ),

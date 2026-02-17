@@ -29,13 +29,9 @@ class CurrentOrderNotifier extends StateNotifier<CurrentOrderState> {
 
   void addItem(OrderItem item, String outletId) {
     if (state.outletId != null && state.outletId != outletId) {
-      // Different outlet, clear previous items? Or warn user?
-      // For now, let's clear and start fresh for simplicity, or handle elsewhere.
-      // Assuming single outlet ordering for now.
       state = CurrentOrderState(items: [item], outletId: outletId);
     } else {
       final currentItems = List<OrderItem>.from(state.items);
-      // Check if item already exists (same ID and instructions)
       final existingIndex = currentItems.indexWhere((i) =>
           i.itemId == item.itemId &&
           i.specialInstructions == item.specialInstructions);
@@ -56,7 +52,7 @@ class CurrentOrderNotifier extends StateNotifier<CurrentOrderState> {
     final currentItems = List<OrderItem>.from(state.items);
     currentItems.remove(item);
     if (currentItems.isEmpty) {
-      state = const CurrentOrderState(); // Clear outlet if empty
+      state = const CurrentOrderState();
     } else {
       state = state.copyWith(items: currentItems);
     }
