@@ -1,0 +1,114 @@
+[
+  {
+    "id": "outlet_1",
+    "name": "Oven Express",
+    "logo": "https://via.placeholder.com/100",
+    "rating": 4.5,
+    "ratingCount": 234,
+    "isOpen": true,
+    "hoursOfOperation": [
+      {
+        "day": "Monday",
+        "open": "10:00 AM",
+        "close": "7:00 PM",
+        "isClosed": false
+      },
+      {
+        "day": "Tuesday",
+        "open": "10:00 AM",
+        "close": "7:00 PM",
+        "isClosed": false
+      },
+      {
+        "day": "Wednesday",
+        "open": "10:00 AM",
+        "close": "7:00 PM",
+        "isClosed": false
+      },
+      {
+        "day": "Thursday",
+        "open": "10:00 AM",
+        "close": "7:00 PM",
+        "isClosed": false
+      },
+      {
+        "day": "Friday",
+        "open": "10:00 AM",
+        "close": "8:00 PM",
+        "isClosed": false
+      },
+      {
+        "day": "Saturday",
+        "open": "11:00 AM",
+        "close": "8:00 PM",
+        "isClosed": false
+      },
+      {
+        "day": "Sunday",
+        "open": "12:00 PM",
+        "close": "6:00 PM",
+        "isClosed": false
+      }
+    ],
+    "cuisineType": "Italian, Pizza, Pasta",
+    "campusLocation": "Near Main Library",
+    "latitude": 28.5355,
+    "longitude": 77.2053
+  },
+  {
+    "id": "outlet_2",
+    "name": "Kitchenette",
+    "logo": "https://via.placeholder.com/100",
+    "rating": 4.3,
+    "ratingCount": 189,
+    "isOpen": true,
+    "hoursOfOperation": [
+      {
+        "day": "Monday",
+        "open": "9:00 AM",
+        "close": "8:00 PM",
+        "isClosed": false
+      },
+      {
+        "day": "Tuesday",
+        "open": "9:00 AM",
+        "close": "8:00 PM",
+        "isClosed": false
+      },
+      {
+        "day": "Wednesday",
+        "open": "9:00 AM",
+        "close": "8:00 PM",
+        "isClosed": false
+      },
+      {
+        "day": "Thursday",
+        "open": "9:00 AM",
+        "close": "8:00 PM",
+        "isClosed": false
+      },
+      {
+        "day": "Friday",
+        "open": "9:00 AM",
+        "close": "9:00 PM",
+        "isClosed": false
+      },
+      {
+        "day": "Saturday",
+        "open": "10:00 AM",
+        "close": "9:00 PM",
+        "isClosed": false
+      },
+      {
+        "day": "Sunday",
+        "open": "10:00 AM",
+        "close": "7:00 PM",
+        "isClosed": false
+      }
+    ],
+    "cuisineType": "Indian, North Indian, Biryanis",
+    "campusLocation": "Near Cafeteria Block",
+    "latitude": 28.5365,
+    "longitude": 77.2063
+  }
+]

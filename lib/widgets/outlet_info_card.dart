@@ -1,0 +1,150 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../models/index.dart';
+import '../../config/theme.dart';
+
+/// Displays outlet info card with rating, hours, location, cuisine
+class OutletInfoCard extends StatelessWidget {
+  final Outlet outlet;
+  final VoidCallback onTap;
+
+  const OutletInfoCard({
+    required this.outlet,
+    required this.onTap,
+    super.key,
+  });
+
+  String _getCurrentStatus() {
+    if (!outlet.isOpen) return 'Currently Closed';
+
+    try {
+      final now = DateTime.now();
+      final today = DateFormat('EEEE').format(now);
+
+      final todayHours = outlet.hoursOfOperation.firstWhere(
+          (h) => h.day == today,
+          orElse: () => outlet.hoursOfOperation[0]);
+
+      return 'Open • ${todayHours.open} - ${todayHours.close}';
+    } catch (e) {
+      return 'Open now';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final statusColor =
+        outlet.isOpen ? AppTheme.successColor : AppTheme.errorColor;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with name and cuisine
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          outlet.name,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          outlet.cuisineType,
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Rating badge
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.star_rounded,
+                          size: 16,
+                          color: AppTheme.primaryColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${outlet.rating}',
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: AppTheme.primaryColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Status and location
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Hours and status
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: 16,
+                        color: statusColor,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        _getCurrentStatus(),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: statusColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                      ),
+                    ],
+                  ),
+
+                  // Location
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on_rounded,
+                        size: 16,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        outlet.campusLocation,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

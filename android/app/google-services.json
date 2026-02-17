@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "928201206715",
-    "project_id": "unibite-app",
-    "storage_bucket": "unibite-app.firebasestorage.app"
+    "project_number": "509566537943",
+    "project_id": "unibites-app",
+    "storage_bucket": "unibites-app.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:928201206715:android:f4cf69eaad0cccdae7b29e",
+        "mobilesdk_app_id": "1:509566537943:android:d8b9ddc4cace263c842092",
         "android_client_info": {
-          "package_name": "com.unibite.app"
+          "package_name": "com.unibites.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "509566537943-ildo926uoq1bfj0mgkhkkk7ojr0d855n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.unibites.app",
+            "certificate_hash": "0cdbf81c0f0cae5e5890bf24d436150ff930a2b3"
+          }
+        },
+        {
+          "client_id": "509566537943-u20s3f0mq3lg98kr0qb589hu47odb6ba.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyB6pmDGsYTmBYRwJ1wUpdw7zYiylNDTJe8"
+          "current_key": "AIzaSyBW1cH-WUcDlD4kq5PzMlxxgyyP7L7qw5Q"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "509566537943-u20s3f0mq3lg98kr0qb589hu47odb6ba.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

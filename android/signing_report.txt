@@ -1,0 +1,49 @@
+> Task :gradle:checkKotlinGradlePluginConfigurationErrors
+> Task :gradle:compileKotlin UP-TO-DATE
+> Task :gradle:compileJava NO-SOURCE
+> Task :gradle:compileGroovy NO-SOURCE
+> Task :gradle:pluginDescriptors UP-TO-DATE
+> Task :gradle:processResources UP-TO-DATE
+> Task :gradle:classes UP-TO-DATE
+> Task :gradle:jar UP-TO-DATE
+
+> Task :app:signingReport
+Variant: debug
+Config: debug
+Store: C:\Users\petri\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: BB:32:4D:D4:43:C8:7A:18:5E:29:87:87:93:8D:94:93
+SHA1: 0C:DB:F8:1C:0F:0C:AE:5E:58:90:BF:24:D4:36:15:0F:F9:30:A2:B3
+SHA-256: 1F:A4:A9:B0:35:DA:83:DB:12:8B:1E:7C:24:B7:27:3E:00:38:30:D0:90:EA:11:90:35:7C:E7:68:D5:04:31:6D
+Valid until: Wednesday, 9 February, 2056
+----------
+Variant: release
+Config: debug
+Store: C:\Users\petri\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: BB:32:4D:D4:43:C8:7A:18:5E:29:87:87:93:8D:94:93
+SHA1: 0C:DB:F8:1C:0F:0C:AE:5E:58:90:BF:24:D4:36:15:0F:F9:30:A2:B3
+SHA-256: 1F:A4:A9:B0:35:DA:83:DB:12:8B:1E:7C:24:B7:27:3E:00:38:30:D0:90:EA:11:90:35:7C:E7:68:D5:04:31:6D
+Valid until: Wednesday, 9 February, 2056
+----------
+Variant: profile
+Config: debug
+Store: C:\Users\petri\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: BB:32:4D:D4:43:C8:7A:18:5E:29:87:87:93:8D:94:93
+SHA1: 0C:DB:F8:1C:0F:0C:AE:5E:58:90:BF:24:D4:36:15:0F:F9:30:A2:B3
+SHA-256: 1F:A4:A9:B0:35:DA:83:DB:12:8B:1E:7C:24:B7:27:3E:00:38:30:D0:90:EA:11:90:35:7C:E7:68:D5:04:31:6D
+Valid until: Wednesday, 9 February, 2056
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\petri\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: BB:32:4D:D4:43:C8:7A:18:5E:29:87:87:93:8D:94:93
+SHA1: 0C:DB:F8:1C:0F:0C:AE:5E:58:90:BF:24:D4:36:15:0F:F9:30:A2:B3
+SHA-256: 1F:A4:A9:B0:35:DA:83:DB:12:8B:1E:7C:24:B7:27:3E:00:38:30:D0:90:EA:11:90:35:7C:E7:68:D5:04:31:6D
+Valid until: Wednesday, 9 February, 2056
+----------
+
+BUILD SUCCESSFUL in 3s
+6 actionable tasks: 2 executed, 4 up-to-date
