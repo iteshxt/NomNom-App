@@ -30,42 +30,42 @@ class CustomBottomNav extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Expanded(
-                child: _NavItem(
-                  icon: Icons.restaurant_menu_rounded,
-                  label: 'Menu',
-                  isActive: currentItem == BottomNavItem.menu,
-                  onTap: () => _handleTabTapped(0),
-                ),
+              _buildAnimatedNavItem(
+                context,
+                index: 0,
+                icon: Icons.restaurant_menu_rounded,
+                label: 'Menu',
+                currentItem: currentItem,
+                targetItem: BottomNavItem.menu,
               ),
-              Expanded(
-                child: _NavItem(
-                  icon: Icons.receipt_long_rounded,
-                  label: 'Orders',
-                  isActive: currentItem == BottomNavItem.orders,
-                  onTap: () => _handleTabTapped(1),
-                ),
+              _buildAnimatedNavItem(
+                context,
+                index: 1,
+                icon: Icons.receipt_long_rounded,
+                label: 'Orders',
+                currentItem: currentItem,
+                targetItem: BottomNavItem.orders,
               ),
-              Expanded(
-                child: _NavItem(
-                  icon: Icons.person_rounded,
-                  label: 'Profile',
-                  isActive: currentItem == BottomNavItem.profile,
-                  onTap: () => _handleTabTapped(2),
-                ),
+              _buildAnimatedNavItem(
+                context,
+                index: 2,
+                icon: Icons.person_rounded,
+                label: 'Profile',
+                currentItem: currentItem,
+                targetItem: BottomNavItem.profile,
               ),
             ],
           ),
@@ -73,56 +73,51 @@ class CustomBottomNav extends StatelessWidget {
       ),
     );
   }
-}
 
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
+  Widget _buildAnimatedNavItem(
+    BuildContext context, {
+    required int index,
+    required IconData icon,
+    required String label,
+    required BottomNavItem currentItem,
+    required BottomNavItem targetItem,
+  }) {
+    final isActive = currentItem == targetItem;
 
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => _handleTabTapped(index),
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: isActive
-                    ? BoxDecoration(
-                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      )
-                    : null,
-                child: Icon(
-                  icon,
-                  color: isActive ? AppTheme.primaryColor : Colors.grey[400],
-                  size: 24,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.fastOutSlowIn,
+        padding: isActive
+            ? const EdgeInsets.symmetric(horizontal: 20, vertical: 10)
+            : const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isActive ? AppTheme.secondaryColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isActive ? AppTheme.primaryColor : Colors.grey[400],
+              size: 24,
+            ),
+            if (isActive) ...[
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: AppTheme.primaryColor,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: isActive ? AppTheme.primaryColor : Colors.grey[400],
-                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-                ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

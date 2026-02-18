@@ -40,21 +40,48 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
     if (items.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Checkout')),
+        backgroundColor: AppTheme.backgroundColor,
+        appBar: AppBar(
+          title: const Text('Checkout'),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: false,
+          titleTextStyle: const TextStyle(
+            color: Colors.black,
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
+          ),
+          iconTheme: const IconThemeData(color: Colors.black),
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.shopping_cart_outlined,
-                size: 48,
-                color: Colors.grey[400],
+                size: 64,
+                color: Colors.grey[300],
               ),
               const SizedBox(height: 16),
-              const Text('Cart is empty'),
+              Text(
+                'Your cart is empty',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[400],
+                ),
+              ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => context.go('/home'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
                 child: const Text('Go Back'),
               ),
             ],
@@ -64,15 +91,27 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     }
 
     return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: const Text('Checkout'),
         backgroundColor: Colors.white,
-        elevation: 1,
+        elevation: 0,
+        centerTitle: false,
+        titleTextStyle: const TextStyle(
+          color: Colors.black,
+          fontSize: 26,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.5,
+        ),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
         child: outletAsync != null
             ? outletAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(
+                    child: CircularProgressIndicator(
+                        color: AppTheme.primaryColor)),
                 error: (error, stackTrace) =>
                     Center(child: Text('Error: $error')),
                 data: (outlet) {
@@ -80,323 +119,328 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     return const Center(child: Text('Outlet not found'));
                   }
 
-                  return Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Outlet Info
-                        Text(
-                          'Order From',
-                          style: Theme.of(context).textTheme.titleMedium,
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Outlet Info Card
+                      _buildSectionHeader('ORDER FROM'),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey[200]!),
-                            borderRadius: BorderRadius.circular(12),
-                            color: Colors.white,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.primaryColor
-                                      .withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.restaurant_rounded,
-                                  color: AppTheme.primaryColor,
-                                ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppTheme.secondaryColor
+                                    .withValues(alpha: 0.3),
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      outlet.name,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      outlet.campusLocation,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(color: Colors.grey[600]),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.star_rounded,
-                                            color: Colors.amber, size: 14),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          '${outlet.rating}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                  fontWeight: FontWeight.w600),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        const Icon(Icons.access_time_rounded,
-                                            color: Colors.grey, size: 14),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          outlet.hoursOfOperation,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                  color: Colors.grey[600]),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                              child: const Icon(
+                                Icons.storefront_rounded,
+                                color: AppTheme.primaryColor,
+                                size: 28,
                               ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        // Order Items
-                        Text(
-                          'Order Items',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            border: Border.all(color: Colors.grey[200]!),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: items.length,
-                            separatorBuilder: (context, index) =>
-                                const Divider(height: 24),
-                            itemBuilder: (context, index) {
-                              final item = items[index];
-                              return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          item.itemName,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(
-                                                  fontWeight: FontWeight.w600),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '${item.quantity} x ₹${item.price.toStringAsFixed(0)}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                  color: Colors.grey[600]),
-                                        ),
-                                        if (item.specialInstructions != null &&
-                                            item.specialInstructions!
-                                                .isNotEmpty)
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 4),
-                                            child: Text(
-                                              'Note: ${item.specialInstructions}',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall
-                                                  ?.copyWith(
-                                                    fontStyle: FontStyle.italic,
-                                                    color: AppTheme.primaryColor
-                                                        .withValues(alpha: 0.7),
-                                                  ),
-                                            ),
-                                          ),
-                                      ],
+                                  Text(
+                                    outlet.name,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.black87,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    '₹${item.totalPrice.toStringAsFixed(0)}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w700,
-                                        ),
+                                    outlet.campusLocation,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey[500],
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        // Order Summary
-                        Text(
-                          'Order Summary',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color:
-                                AppTheme.primaryColor.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                                color: AppTheme.primaryColor
-                                    .withValues(alpha: 0.1)),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Final Total',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
                               ),
-                              Text(
-                                '₹${totalFinal.toStringAsFixed(0)}',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      color: AppTheme.primaryColor,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        // Place Order Button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _isProcessing
-                                ? null
-                                : () async {
-                                    setState(() => _isProcessing = true);
-
-                                    // Use local variables
-                                    final items = widget.items ?? [];
-                                    final total = widget.totalAmount ?? 0.0;
-                                    final outletId = widget.outletId ??
-                                        ref.read(selectedOutletProvider);
-                                    final totalFinal = total;
-
-                                    if (authState != null &&
-                                        outletId != null &&
-                                        items.isNotEmpty) {
-                                      try {
-                                        final orderItems =
-                                            items.cast<OrderItem>();
-
-                                        // Create order
-                                        final order = await ref
-                                            .read(
-                                                orderTrackingProvider.notifier)
-                                            .createOrder(
-                                              userId: authState.id,
-                                              outletId: outletId,
-                                              items: orderItems,
-                                              total: totalFinal,
-                                              estimatedPickupTime: 20,
-                                            );
-
-                                        // Trigger immediate refresh of order history
-                                        ref
-                                            .read(orderHistoryTriggerProvider
-                                                .notifier)
-                                            .state++;
-
-                                        // Clear current order (if using currentOrderProvider)
-                                        ref
-                                            .read(currentOrderProvider.notifier)
-                                            .clearOrder();
-
-                                        if (context.mounted) {
-                                          context.go(
-                                              '/home/order-confirmation/${order.id}');
-                                        }
-                                      } catch (e) {
-                                        if (context.mounted) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text('Error: $e'),
-                                              duration:
-                                                  const Duration(seconds: 2),
-                                            ),
-                                          );
-                                        }
-                                      } finally {
-                                        if (mounted) {
-                                          setState(() => _isProcessing = false);
-                                        }
-                                      }
-                                    } else {
-                                      setState(() => _isProcessing = false);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                'Cannot place empty order')),
-                                      );
-                                    }
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(32),
-                              ),
-                              elevation: 4,
-                              shadowColor:
-                                  AppTheme.primaryColor.withValues(alpha: 0.3),
                             ),
-                            child: _isProcessing
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2, color: Colors.white),
-                                  )
-                                : const Text('Confirm and Place Order'),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Order Items
+                      _buildSectionHeader('YOUR ITEMS'),
+                      const SizedBox(height: 12),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(20),
+                          itemCount: items.length,
+                          separatorBuilder: (context, index) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Divider(height: 1, color: Colors.grey[100]),
+                          ),
+                          itemBuilder: (context, index) {
+                            final item = items[index];
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    '${item.quantity}x',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.primaryColor,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.itemName,
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      if (item.specialInstructions != null &&
+                                          item.specialInstructions!.isNotEmpty)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 4),
+                                          child: Text(
+                                            item.specialInstructions!,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontStyle: FontStyle.italic,
+                                              color: Colors.grey[500],
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  '₹${item.totalPrice.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Order Summary
+                      _buildSectionHeader('PAYMENT SUMMARY'),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Grand Total',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            Text(
+                              '₹${totalFinal.toStringAsFixed(0)}',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.primaryColor,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 48),
+
+                      // Place Order Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: _isProcessing
+                              ? null
+                              : () async {
+                                  setState(() => _isProcessing = true);
+
+                                  // Use local variables
+                                  final items = widget.items ?? [];
+                                  final total = widget.totalAmount ?? 0.0;
+                                  final outletId = widget.outletId ??
+                                      ref.read(selectedOutletProvider);
+                                  final totalFinal = total;
+
+                                  if (authState != null &&
+                                      outletId != null &&
+                                      items.isNotEmpty) {
+                                    try {
+                                      final orderItems =
+                                          items.cast<OrderItem>();
+
+                                      // Create order
+                                      final order = await ref
+                                          .read(orderTrackingProvider.notifier)
+                                          .createOrder(
+                                            userId: authState.id,
+                                            outletId: outletId,
+                                            items: orderItems,
+                                            total: totalFinal,
+                                            estimatedPickupTime: 20,
+                                          );
+
+                                      // Trigger immediate refresh of order history
+                                      ref
+                                          .read(orderHistoryTriggerProvider
+                                              .notifier)
+                                          .state++;
+
+                                      // Clear current order (if using currentOrderProvider)
+                                      ref
+                                          .read(currentOrderProvider.notifier)
+                                          .clearOrder();
+
+                                      if (context.mounted) {
+                                        context.go(
+                                            '/orders/confirmation/${order.id}');
+                                      }
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text('Error: $e'),
+                                            behavior: SnackBarBehavior.floating,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                            backgroundColor: Colors.red[400],
+                                          ),
+                                        );
+                                      }
+                                    } finally {
+                                      if (mounted) {
+                                        setState(() => _isProcessing = false);
+                                      }
+                                    }
+                                  } else {
+                                    setState(() => _isProcessing = false);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content:
+                                              Text('Cannot place empty order')),
+                                    );
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 8,
+                            shadowColor:
+                                AppTheme.primaryColor.withValues(alpha: 0.4),
+                          ),
+                          child: _isProcessing
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2.5, color: Colors.white),
+                                )
+                              : const Text(
+                                  'Place Order',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                    ],
                   );
                 },
               )
             : const SizedBox(),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w900,
+        color: Colors.grey,
+        letterSpacing: 1.2,
       ),
     );
   }

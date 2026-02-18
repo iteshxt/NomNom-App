@@ -25,20 +25,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final menuAsync = ref.watch(menuProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
+    final hasItems = ref.watch(currentOrderProvider).items.isNotEmpty;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 1,
-        title: const Text('UniBites'),
+        elevation: 0,
+        centerTitle: false,
+        title: const Text(
+          'UniBites',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 28,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.5,
+          ),
+        ),
         actions: [
           outletsAsync.when(
             data: (outlets) => Container(
               margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                color: AppTheme.secondaryColor,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: DropdownButtonHideUnderline(
@@ -240,8 +250,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   }
 
                   return SliverPadding(
-                    padding: const EdgeInsets.only(
-                        left: 16, right: 16, top: 8, bottom: 100),
+                    padding: EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        top: 8,
+                        bottom: hasItems ? 100 : 24),
                     sliver: SliverGrid(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(

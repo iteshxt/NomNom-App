@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class Outlet {
   final String id;
   final String name;
@@ -40,7 +42,7 @@ class Outlet {
         closingTime: json['closingTime']?.toString() ?? '8:00 PM',
       );
     } catch (e) {
-      print('Error parsing Outlet: $e JSON: $json');
+      debugPrint('Error parsing Outlet: $e JSON: $json');
       rethrow;
     }
   }

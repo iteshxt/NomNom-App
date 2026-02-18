@@ -25,23 +25,47 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
         ref.watch(specificOrderTrackingProvider(widget.orderId));
 
     return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Order Tracking'),
+        title: const Text('Track Order'),
         backgroundColor: Colors.white,
-        elevation: 1,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: const TextStyle(
+          color: Colors.black,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: orderTrackingAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppTheme.primaryColor),
+        ),
         error: (error, stackTrace) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 48, color: Colors.red[400]),
+              const Icon(Icons.error_outline, size: 48, color: Colors.grey),
               const SizedBox(height: 16),
-              Text('Error: $error'),
+              Text(
+                'Something went wrong',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[800],
+                ),
+              ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => context.go('/home'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
                 child: const Text('Go Home'),
               ),
             ],
@@ -53,12 +77,24 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.info_outline, size: 48, color: Colors.blue[400]),
+                  Icon(Icons.search_off_rounded,
+                      size: 64, color: Colors.grey[300]),
                   const SizedBox(height: 16),
-                  const Text('Order not found'),
+                  Text(
+                    'Order not found',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.grey[400],
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => context.go('/home'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: Colors.white,
+                    ),
                     child: const Text('Go Home'),
                   ),
                 ],
@@ -68,227 +104,248 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
 
           return SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header with Order Status
+                  // Header Status Card
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Order #${tracking.orderNumber}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    color: AppTheme.primaryColor,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _statusLabelFromString(tracking.currentStatus),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                          ],
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.primaryColor,
+                          AppTheme.primaryColor.withValues(alpha: 0.8),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
                         ),
-                        // Time Remaining
-                        if (tracking.minutesRemaining > 0)
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Icon(
-                                Icons.access_time_rounded,
-                                color: Colors.blue[600],
-                                size: 28,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '~${tracking.minutesRemaining} min',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      color: Colors.blue[600],
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                            ],
-                          )
-                        else
-                          Icon(
-                            Icons.check_circle,
-                            color: Colors.green[600],
-                            size: 32,
-                          ),
                       ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  // Status Timeline
-                  Text(
-                    'Order Status',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildStatusTimeline(context, tracking),
-                  const SizedBox(height: 32),
-                  // Outlet Details Card
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[300]!),
-                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Pickup Location',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.location_on_outlined,
-                              color: AppTheme.primaryColor,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    tracking.outletName,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(fontWeight: FontWeight.w600),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    tracking.outletLocation ??
-                                        'Campus Location',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(color: Colors.grey[600]),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Order Summary
-                  if (tracking.items.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Order Items',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 12),
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            border: Border.all(color: Colors.grey[200]!),
-                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: tracking.items.length,
-                            itemBuilder: (context, index) {
-                              final item = tracking.items[index];
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        '${item.quantity}x ${item.itemName}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      '₹${item.totalPrice.toStringAsFixed(0)}',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
+                          child: Text(
+                            'ORDER #${tracking.orderNumber}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        // Total
+                        Text(
+                          tracking.isReady
+                              ? 'Your Order is Ready!'
+                              : '${tracking.minutesRemaining} min',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          tracking.isReady
+                              ? 'Please pick it up at the counter'
+                              : 'Estimated preparation time',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Timeline
+                  _buildStatusTimeline(context, tracking),
+
+                  const SizedBox(height: 40),
+
+                  // Location Details
+                  _buildSectionTitle('PICKUP LOCATION'),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color:
+                                AppTheme.secondaryColor.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.storefront_rounded,
+                            color: AppTheme.primaryColor,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                tracking.outletName,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                tracking.outletLocation ?? 'Main Campus',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey[500],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Order Summary
+                  _buildSectionTitle('ORDER SUMMARY'),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: tracking.items.length,
+                          separatorBuilder: (context, index) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Divider(
+                              height: 1,
+                              color: Colors.grey[100],
+                            ),
+                          ),
+                          itemBuilder: (context, index) {
+                            final item = tracking.items[index];
+                            return Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[50],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    '${item.quantity}x',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      color: AppTheme.primaryColor,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    item.itemName,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  '₹${item.totalPrice.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        Divider(color: Colors.grey[200]),
+                        const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               'Total Amount',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             Text(
                               '₹${tracking.totalAmount.toStringAsFixed(0)}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                    color: AppTheme.primaryColor,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.primaryColor,
+                              ),
                             ),
                           ],
                         ),
                       ],
                     ),
-                  const SizedBox(height: 32),
-                  // CTA Buttons
+                  ),
+
+                  const SizedBox(height: 48),
+
+                  // Action Button
                   if (tracking.isReady)
                     SizedBox(
                       width: double.infinity,
@@ -300,8 +357,8 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text(
-                                    'Order marked as picked up! Thank you for ordering.'),
+                                content:
+                                    Text('Order picked up! Enjoy your meal!'),
                                 duration: Duration(seconds: 2),
                               ),
                             );
@@ -309,39 +366,27 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: Colors.green[400],
+                          backgroundColor: Colors.green,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 4,
+                          shadowColor: Colors.green.withValues(alpha: 0.4),
                         ),
-                        child: const Text('I\'ve Picked It Up'),
-                      ),
-                    )
-                  else
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        border: Border.all(color: Colors.blue[200]!),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: Colors.blue[600],
+                        child: const Text(
+                          'I\'VE PICKED IT UP',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.2,
+                            color: Colors.white,
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'We\'ll notify you when your order is ready for pickup!',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(color: Colors.blue[600]),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
+
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -351,140 +396,120 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
     );
   }
 
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w900,
+        color: Colors.grey,
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+
   Widget _buildStatusTimeline(BuildContext context, Order tracking) {
     final statuses = [
       OrderStatus.confirmed,
       OrderStatus.preparing,
       OrderStatus.ready,
-      OrderStatus.fulfilled,
     ];
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(
-          statuses.length,
-          (index) {
-            final status = statuses[index];
-            final statusIndexInList = statuses.indexOf(status);
-            final currentStatusIndex = statuses.indexWhere(
-              (s) => s.toString().split('.').last == tracking.currentStatus,
-            );
+    int currentStep = 0;
+    if (tracking.currentStatus == 'preparing') currentStep = 1;
+    if (tracking.currentStatus == 'ready') currentStep = 2;
+    if (tracking.currentStatus == 'fulfilled') currentStep = 3;
 
-            final isCompleted = statusIndexInList < currentStatusIndex ||
-                tracking.currentStatus == 'fulfilled' &&
-                    status == OrderStatus.fulfilled;
-            final isCurrent = statusIndexInList == currentStatusIndex &&
-                tracking.currentStatus != 'fulfilled';
-
-            return Expanded(
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      // Leading Line
-                      if (index != 0)
-                        Expanded(
-                          child: Container(
-                            height: 2,
-                            color: statusIndexInList <= currentStatusIndex
-                                ? AppTheme.primaryColor
-                                : Colors.grey[300],
-                          ),
-                        ),
-                      // Dot
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isCompleted ||
-                                  (isCurrent &&
-                                      tracking.currentStatus != 'fulfilled')
-                              ? (isCompleted
-                                  ? Colors.green[500]
-                                  : AppTheme.primaryColor)
-                              : Colors.grey[300],
-                          border: isCurrent
-                              ? Border.all(
-                                  color: AppTheme.primaryColor
-                                      .withValues(alpha: 0.2),
-                                  width: 4)
-                              : null,
-                        ),
-                        child: Center(
-                          child: isCompleted
-                              ? const Icon(
-                                  Icons.check,
-                                  color: Colors.white,
-                                  size: 14,
-                                )
-                              : null,
-                        ),
-                      ),
-                      // Trailing Line
-                      if (index != statuses.length - 1)
-                        Expanded(
-                          child: Container(
-                            height: 2,
-                            color: statusIndexInList < currentStatusIndex
-                                ? AppTheme.primaryColor
-                                : Colors.grey[300],
-                          ),
-                        ),
-                    ],
+    return Row(
+      children: [
+        for (int i = 0; i < statuses.length; i++) ...[
+          // Dot
+          Column(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color:
+                      i <= currentStep ? AppTheme.primaryColor : Colors.white,
+                  border: Border.all(
+                    color: i <= currentStep
+                        ? AppTheme.primaryColor
+                        : Colors.grey[300]!,
+                    width: 2,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _statusLabel(status).replaceAll('Your Order', ''),
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 10,
-                          fontWeight: isCurrent || isCompleted
-                              ? FontWeight.w600
-                              : FontWeight.normal,
-                          color: isCurrent
-                              ? AppTheme.primaryColor
-                              : isCompleted
-                                  ? Colors.green[700]
-                                  : Colors.grey[600],
-                        ),
+                  shape: BoxShape.circle,
+                  boxShadow: i <= currentStep
+                      ? [
+                          BoxShadow(
+                            color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          )
+                        ]
+                      : null,
+                ),
+                child: Center(
+                  child: Icon(
+                    _getStatusIcon(statuses[i]),
+                    size: 16,
+                    color: i <= currentStep ? Colors.white : Colors.grey[300],
                   ),
-                ],
+                ),
               ),
-            );
-          },
-        ),
-      ),
+              const SizedBox(height: 8),
+              Text(
+                _getStatusLabel(statuses[i]),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: i <= currentStep ? Colors.black87 : Colors.grey[400],
+                ),
+              ),
+            ],
+          ),
+          // Line
+          if (i < statuses.length - 1)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Container(
+                  height: 2,
+                  color: i < currentStep
+                      ? AppTheme.primaryColor
+                      : Colors.grey[200],
+                ),
+              ),
+            ),
+        ],
+      ],
     );
   }
 
-  String _statusLabel(OrderStatus status) {
+  IconData _getStatusIcon(OrderStatus status) {
     switch (status) {
       case OrderStatus.confirmed:
-        return 'Order Confirmed';
+        return Icons.check_rounded;
       case OrderStatus.preparing:
-        return 'Preparing Your Order';
+        return Icons.local_dining_rounded;
       case OrderStatus.ready:
-        return 'Ready for Pickup';
-      case OrderStatus.fulfilled:
-        return 'Order Picked Up';
+        return Icons.shopping_bag_rounded;
+      default:
+        return Icons.circle;
     }
   }
 
-  String _statusLabelFromString(String status) {
+  String _getStatusLabel(OrderStatus status) {
     switch (status) {
-      case 'confirmed':
-        return 'Order Confirmed';
-      case 'preparing':
-        return 'Preparing Your Order';
-      case 'ready':
-        return 'Ready for Pickup';
-      case 'fulfilled':
-        return 'Order Picked Up';
+      case OrderStatus.confirmed:
+        return 'Placed';
+      case OrderStatus.preparing:
+        return 'Preparing';
+      case OrderStatus.ready:
+        return 'Ready';
       default:
-        return 'Unknown Status';
+        return '';
     }
   }
 }

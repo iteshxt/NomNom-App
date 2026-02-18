@@ -57,6 +57,8 @@ class DatabaseService {
         await _db!.open().timeout(const Duration(seconds: 10));
 
         if (_db!.isConnected) {
+          // Sometimes mongo_dart needs a tiny bit of time to be fully ready
+          await Future.delayed(const Duration(milliseconds: 200));
           debugPrint(
               'DatabaseService: Successfully connected to ${_db!.databaseName}');
           return;

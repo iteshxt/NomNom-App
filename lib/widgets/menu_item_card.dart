@@ -197,12 +197,11 @@ class MenuItemCard extends ConsumerWidget {
                 },
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+            backgroundColor: AppTheme.secondaryColor,
             foregroundColor: AppTheme.primaryColor,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
-              side: const BorderSide(color: AppTheme.primaryColor, width: 1),
             ),
           ),
           child: const Text(

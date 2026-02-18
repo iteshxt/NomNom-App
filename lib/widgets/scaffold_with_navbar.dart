@@ -17,7 +17,9 @@ class ScaffoldWithNavBar extends StatelessWidget {
     final hidePillRoutes = [
       '/home/checkout',
       '/home/order-tracking',
-      '/home/order-confirmation'
+      '/home/order-confirmation',
+      '/orders',
+      '/profile',
     ];
     final shouldHidePill =
         hidePillRoutes.any((route) => location.startsWith(route));

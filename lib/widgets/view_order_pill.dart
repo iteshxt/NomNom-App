@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -30,7 +29,7 @@ class ViewOrderPill extends ConsumerWidget {
           ),
         ],
         gradient: const LinearGradient(
-          colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
+          colors: [AppTheme.primaryColor, AppTheme.accentColor],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -146,11 +145,17 @@ class ViewOrderPill extends ConsumerWidget {
             },
             onProceed: () {
               Navigator.pop(context);
-              context.push('/home/checkout', extra: {
-                'outletId': currentOrder.outletId,
-                'items': currentOrder.items,
-                'totalAmount': currentOrder.totalAmount,
-              });
+              final authState = ref.read(authStateProvider);
+              if (authState == null) {
+                // If guest, redirect to login
+                context.push('/login');
+              } else {
+                context.push('/checkout', extra: {
+                  'outletId': currentOrder.outletId,
+                  'items': currentOrder.items,
+                  'totalAmount': currentOrder.totalAmount,
+                });
+              }
             },
           );
         },

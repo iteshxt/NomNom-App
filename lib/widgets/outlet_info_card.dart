@@ -65,7 +65,7 @@ class OutletInfoCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      color: AppTheme.secondaryColor,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(

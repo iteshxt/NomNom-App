@@ -1,24 +1,40 @@
+import 'package:flutter/foundation.dart';
 import 'database_service.dart';
 import '../models/index.dart';
 
 class OutletService {
   Future<List<Outlet>> getOutlets() async {
-    try {
-      print('OutletService: Fetching outlets...');
-      final db = await DatabaseService.db;
-      print('OutletService: Connected to DB: ${db.databaseName}');
-      final collection = db.collection(DatabaseService.outletsCollection);
-      print('OutletService: Collection: ${collection.collectionName}');
-      final list = await collection.find().toList();
-      print('OutletService: Found ${list.length} documents');
-      final outlets = list.map((item) => Outlet.fromJson(item)).toList();
-      print('OutletService: Parsed ${outlets.length} outlets');
-      return outlets;
-    } catch (e, stackTrace) {
-      print('OutletService Error: $e');
-      print('StackTrace: $stackTrace');
-      rethrow; // Allow provider to handle the error state
+    int retries = 0;
+    while (retries < 2) {
+      try {
+        debugPrint(
+            'OutletService: Fetching outlets (Attempt ${retries + 1})...');
+        final db = await DatabaseService.db;
+        final collection = db.collection(DatabaseService.outletsCollection);
+        final list = await collection.find().toList();
+
+        if (list.isNotEmpty) {
+          final outlets = list.map((item) => Outlet.fromJson(item)).toList();
+          debugPrint(
+              'OutletService: Found and parsed ${outlets.length} outlets');
+          return outlets;
+        }
+
+        debugPrint('OutletService: No outlets found on attempt ${retries + 1}');
+        if (retries == 0) {
+          debugPrint('OutletService: Retrying in 500ms...');
+          await Future.delayed(const Duration(milliseconds: 500));
+        }
+        retries++;
+      } catch (e, stackTrace) {
+        debugPrint('OutletService Error: $e');
+        debugPrint('StackTrace: $stackTrace');
+        if (retries >= 1) rethrow; // Rethrow on second error
+        await Future.delayed(const Duration(milliseconds: 500));
+        retries++;
+      }
     }
+    return []; // Return empty if all retries failed to find data
   }
 
   Future<Outlet?> getOutletById(String id) async {

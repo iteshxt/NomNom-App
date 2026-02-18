@@ -26,7 +26,7 @@ class MenuItem {
 
   factory MenuItem.fromJson(Map<String, dynamic> json) {
     return MenuItem(
-      id: json['id'] as String,
+      id: (json['id'] ?? json['itemId']) as String,
       outletId: json['outletId'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
@@ -34,7 +34,8 @@ class MenuItem {
       image: json['image'] as String,
       category: json['category'] as String,
       tags: (json['tags'] as List).cast<String>(),
-      isAvailable: json['isAvailable'] as bool? ?? true,
+      isAvailable:
+          (json['isAvailable'] ?? json['availability']) as bool? ?? true,
     );
   }
 

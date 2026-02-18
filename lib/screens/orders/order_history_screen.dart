@@ -17,61 +17,102 @@ class OrderHistoryScreen extends ConsumerWidget {
 
     if (authState == null) {
       return Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
         appBar: AppBar(
-          title: const Text('Order History'),
+          title: const Text('Orders'),
           backgroundColor: Colors.white,
-          elevation: 1,
+          elevation: 0,
         ),
         body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.lock_outline,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppTheme.secondaryColor.withValues(alpha: 0.3),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.receipt_long_rounded,
                   size: 48,
-                  color: Colors.grey[400],
+                  color: AppTheme.primaryColor,
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  'Sign in to view your orders',
-                  style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Sign in to see your orders',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
                 ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () => context.go('/login'),
-                  child: const Text('Sign In'),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Track your past and current orders here',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () => context.go('/login'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+                child: const Text('Sign In'),
+              ),
+            ],
           ),
         ),
       );
     }
 
     return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Order History'),
+        title: const Text('Your Orders'),
         backgroundColor: Colors.white,
-        elevation: 1,
+        elevation: 0,
+        centerTitle: false,
+        titleTextStyle: const TextStyle(
+          color: Colors.black,
+          fontSize: 26,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.5,
+        ),
       ),
       body: ordersAsync == null
           ? const Center(child: CircularProgressIndicator())
           : ordersAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryColor),
+              ),
               error: (error, stackTrace) => Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, size: 48, color: Colors.red[400]),
+                    const Icon(Icons.error_outline_rounded,
+                        size: 48, color: Colors.grey),
                     const SizedBox(height: 16),
-                    Text('Error: $error'),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () {
-                        ref.invalidate(orderHistoryProvider);
-                      },
+                    Text(
+                      'Could not load orders',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => ref.invalidate(orderHistoryProvider),
                       child: const Text('Retry'),
                     ),
                   ],
@@ -80,58 +121,85 @@ class OrderHistoryScreen extends ConsumerWidget {
               data: (orders) {
                 if (orders.isEmpty) {
                   return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.receipt_long_outlined,
-                            size: 48,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.local_dining_rounded,
+                            size: 64,
                             color: Colors.grey[400],
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No orders yet',
-                            style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'No orders yet',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'When you place an order, it will appear here',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Text(
+                            'Looks like you haven\'t ordered anything yet. Time to change that!',
                             textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey[600],
+                              height: 1.4,
+                            ),
                           ),
-                          const SizedBox(height: 24),
-                          ElevatedButton(
-                            onPressed: () => context.go('/home'),
-                            child: const Text('Start Ordering'),
+                        ),
+                        const SizedBox(height: 32),
+                        ElevatedButton(
+                          onPressed: () => context.go('/home'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 32, vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            elevation: 4,
+                            shadowColor:
+                                AppTheme.primaryColor.withValues(alpha: 0.4),
                           ),
-                        ],
-                      ),
+                          child: const Text(
+                            'Start Ordering',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 }
 
                 return RefreshIndicator(
+                  color: AppTheme.primaryColor,
                   onRefresh: () async {
                     ref.read(orderHistoryTriggerProvider.notifier).state++;
                   },
                   child: ListView.separated(
-                    padding: const EdgeInsets.only(
-                        left: 16, right: 16, top: 16, bottom: 100),
+                    padding: const EdgeInsets.all(16),
                     physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: orders.length,
                     separatorBuilder: (context, index) =>
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                     itemBuilder: (context, index) {
                       final order = orders[index];
                       return _OrderHistoryCard(
                         order: order,
                         onTap: () {
-                          context.go('/home/order-tracking/${order.id}');
+                          context.go('/orders/tracking/${order.id}');
                         },
                       );
                     },
@@ -154,105 +222,136 @@ class _OrderHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd MMM, yyyy');
+    final dateFormat = DateFormat('MMM d, h:mm a');
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[200]!),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Order #${order.orderNumber}',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.primaryColor,
-                            ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        order.outletName,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // Status Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _statusColor(order.status).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    _statusLabel(order.status),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: _statusColor(order.status),
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Items Count
-            Text(
-              '${order.items.length} items',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-            ),
-            const SizedBox(height: 12),
-            // Total & Date
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '₹${order.total.toStringAsFixed(0)}',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: AppTheme.primaryColor,
-                            fontWeight: FontWeight.w700,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            _statusColor(order.status).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _statusColor(order.status),
+                            ),
                           ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _statusLabel(order.status).toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                              color: _statusColor(order.status),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 4),
                     Text(
                       dateFormat.format(order.createdAt),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[400],
+                      ),
                     ),
                   ],
                 ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 18,
-                  color: Colors.grey[400],
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: AppTheme.secondaryColor.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.restaurant_rounded,
+                          color: AppTheme.primaryColor,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            order.outletName,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${order.items.length} items • Order #${order.orderNumber}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '₹${order.total.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -267,7 +366,7 @@ class _OrderHistoryCard extends StatelessWidget {
       case OrderStatus.ready:
         return 'Ready';
       case OrderStatus.fulfilled:
-        return 'Picked Up';
+        return 'Completed';
     }
   }
 
@@ -276,11 +375,11 @@ class _OrderHistoryCard extends StatelessWidget {
       case OrderStatus.confirmed:
         return Colors.blue;
       case OrderStatus.preparing:
-        return Colors.amber;
+        return Colors.orange;
       case OrderStatus.ready:
         return Colors.green;
       case OrderStatus.fulfilled:
-        return Colors.green;
+        return Colors.grey;
     }
   }
 }

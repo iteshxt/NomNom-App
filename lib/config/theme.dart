@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color(0xFF6366F1);
-  static const Color secondaryColor = Color(0xFF8B5CF6);
-  static const Color accentColor = Color(0xFFEC4899);
-  static const Color backgroundColor = Color(0xFFF8F9FA);
+  static const Color primaryColor = Color(0xFFD81B60);
+  static const Color secondaryColor =
+      Color(0xFFF8BBD0); // Light Pink instead of Orange
+  static const Color accentColor = Color(0xFFF06292);
+  static const Color backgroundColor = Color(0xFFFFFFFF);
   static const Color surfaceColor = Color(0xFFFFFFFF);
-  static const Color errorColor = Color(0xFFEF4444);
-  static const Color successColor = Color(0xFF10B981);
-  static const Color warningColor = Color(0xFFF59E0B);
+  static const Color errorColor = Color(0xFFD32F2F);
+  static const Color successColor = Color(0xFF388E3C);
+  static const Color warningColor =
+      Color(0xFFC2185B); // Deep Pink instead of Orange
 
   static ThemeData get lightTheme {
     return ThemeData(
@@ -69,30 +71,29 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          backgroundColor: Colors.white, // Whitish buttons
+          foregroundColor: primaryColor, // Pink text
+          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(24),
           ),
-          elevation: 4,
-          shadowColor: AppTheme.primaryColor.withOpacity(0.3),
+          elevation: 2,
           textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryColor,
-          side: const BorderSide(color: primaryColor),
+          backgroundColor: secondaryColor,
+          side: BorderSide.none,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(32),
           ),
-          elevation: 4,
-          shadowColor: AppTheme.primaryColor.withOpacity(0.3),
+          elevation: 1,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
