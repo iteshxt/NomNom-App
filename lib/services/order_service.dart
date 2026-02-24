@@ -66,7 +66,8 @@ class OrderService {
       }
       return null;
     } catch (e) {
-      return null;
+      // Rethrow to let provider handle error (e.g. keep old data)
+      rethrow;
     }
   }
 
@@ -80,7 +81,9 @@ class OrderService {
           .toList();
       return list.map((item) => Order.fromJson(item)).toList();
     } catch (e) {
-      return [];
+      // Don't return empty list on error, as it causes UI to show "No Orders"
+      // instead of maintaining loading state or showing error.
+      rethrow;
     }
   }
 

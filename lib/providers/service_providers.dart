@@ -29,7 +29,3 @@ final paymentServiceProvider = Provider((ref) {
 final userServiceProvider = Provider((ref) {
   return UserService();
 });
-
-final notificationServiceProvider = Provider((ref) {
-  return NotificationService();
-});

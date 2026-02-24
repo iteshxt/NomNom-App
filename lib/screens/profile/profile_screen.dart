@@ -17,7 +17,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late TextEditingController _phoneController;
   bool _isEditing = false;
   bool _isSaving = false;
-  bool _pushNotificationsEnabled = true;
 
   @override
   void initState() {
@@ -35,7 +34,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       _nameController.text = authState.name;
       _emailController.text = authState.email;
       _phoneController.text = authState.phone;
-      _pushNotificationsEnabled = authState.pushNotificationsEnabled;
     }
   }
 
@@ -263,20 +261,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     isEditing: false, // Email remains locked
                   ),
 
-                  const SizedBox(height: 32),
-
-                  // Preferences Section
-                  _buildSectionTitle('PREFERENCES'),
-                  const SizedBox(height: 12),
-                  _buildPreferenceTile(
-                    icon: Icons.notifications_active_rounded,
-                    title: 'Push Notifications',
-                    subtitle: 'Stay updated on your orders',
-                    value: _pushNotificationsEnabled,
-                    onChanged: (val) =>
-                        setState(() => _pushNotificationsEnabled = val),
-                  ),
-
                   const SizedBox(height: 48),
 
                   // Action Buttons
@@ -292,9 +276,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             _isSaving = false;
                             _isEditing = false;
                           });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Changes saved!')),
-                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Changes saved!')),
+                            );
+                          }
                         }
                       },
                     ),
@@ -424,46 +410,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildPreferenceTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool value,
-    required Function(bool) onChanged,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      padding: const EdgeInsets.all(8),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.blue.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(Icons.notifications_active_rounded,
-              color: Colors.blue, size: 20),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-        ),
-        trailing: Switch.adaptive(
-          value: value,
-          onChanged: onChanged,
-          activeTrackColor: AppTheme.primaryColor,
-        ),
-      ),
-    );
-  }
-
   Widget _buildSolidButton({
     required String label,
     required VoidCallback onPressed,
@@ -505,33 +451,30 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<void> _handleSignOut() async {
-    final confirmed = await showDialog<bool>(
+    final shouldSignOut = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to exit your profile?'),
+        content: const Text('Are you sure you want to sign out?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('CANCEL'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'SIGN OUT',
-              style: TextStyle(
-                  color: Colors.redAccent, fontWeight: FontWeight.bold),
-            ),
+            child: const Text('Sign Out', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
 
-    if (confirmed == true && mounted) {
-      await ref.read(authStateProvider.notifier).logout();
+    if (shouldSignOut == true) {
       if (mounted) {
-        context.go('/login');
+        await ref.read(authStateProvider.notifier).logout();
+        if (mounted) {
+          context.go('/login');
+        }
       }
     }
   }

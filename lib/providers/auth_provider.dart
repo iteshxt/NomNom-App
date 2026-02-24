@@ -37,10 +37,10 @@ class AuthStateNotifier extends StateNotifier<User?> {
           // Then fetch/sync with MongoDB
           var mongoUser = await _userService.getUser(baseUser.id);
           mongoUser ??= await _userService.updateProfile(
-              userId: baseUser.id,
-              name: baseUser.name,
-              profilePhoto: baseUser.profilePhoto,
-            );
+            userId: baseUser.id,
+            name: baseUser.name,
+            profilePhoto: baseUser.profilePhoto,
+          );
           state = mongoUser ?? baseUser;
         }
         debugPrint('AuthStateNotifier: User logged in - ${state?.id}');

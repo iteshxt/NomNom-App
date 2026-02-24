@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../config/theme.dart';
 import '../../models/index.dart';
 import '../../providers/index.dart';
+import '../../widgets/skeleton_loader.dart';
 
 class OrderHistoryScreen extends ConsumerWidget {
   const OrderHistoryScreen({super.key});
@@ -65,7 +66,7 @@ class OrderHistoryScreen extends ConsumerWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
                 child: const Text('Sign In'),
@@ -91,11 +92,9 @@ class OrderHistoryScreen extends ConsumerWidget {
         ),
       ),
       body: ordersAsync == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonOrderList()
           : ordersAsync.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppTheme.primaryColor),
-              ),
+              loading: () => const SkeletonOrderList(),
               error: (error, stackTrace) => Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -183,26 +182,75 @@ class OrderHistoryScreen extends ConsumerWidget {
                   );
                 }
 
+                final activeOrders = orders
+                    .where((o) => o.status != OrderStatus.fulfilled)
+                    .toList();
+                final pastOrders = orders
+                    .where((o) => o.status == OrderStatus.fulfilled)
+                    .toList();
+
                 return RefreshIndicator(
                   color: AppTheme.primaryColor,
                   onRefresh: () async {
                     ref.read(orderHistoryTriggerProvider.notifier).state++;
                   },
-                  child: ListView.separated(
+                  child: ListView(
                     padding: const EdgeInsets.all(16),
                     physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: orders.length,
-                    separatorBuilder: (context, index) =>
+                    children: [
+                      if (activeOrders.isNotEmpty) ...[
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 12, left: 4),
+                          child: Text(
+                            'Active Orders',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                        ...activeOrders.map((order) => Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _OrderHistoryCard(
+                                order: order,
+                                onTap: () {
+                                  context.go('/orders/tracking/${order.id}');
+                                },
+                              ),
+                            )),
                         const SizedBox(height: 16),
-                    itemBuilder: (context, index) {
-                      final order = orders[index];
-                      return _OrderHistoryCard(
-                        order: order,
-                        onTap: () {
-                          context.go('/orders/tracking/${order.id}');
-                        },
-                      );
-                    },
+                      ],
+                      if (pastOrders.isNotEmpty) ...[
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 12, left: 4),
+                          child: Text(
+                            'Past Orders',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                        ...pastOrders.map((order) => Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _OrderHistoryCard(
+                                order: order,
+                                isPast: true,
+                                onTap: () {
+                                  // For past orders, strictly tracking might not be useful,
+                                  // but providing details is good.
+                                  // We can keep it or disable it.
+                                  // Keeping it for now as it might show order summary.
+                                  context.go('/orders/tracking/${order.id}');
+                                },
+                              ),
+                            )),
+                      ],
+                      // Add extra padding at bottom for scrolling
+                      const SizedBox(height: 60),
+                    ],
                   ),
                 );
               },
@@ -213,16 +261,19 @@ class OrderHistoryScreen extends ConsumerWidget {
 
 class _OrderHistoryCard extends StatelessWidget {
   final Order order;
+  final bool isPast;
   final VoidCallback onTap;
 
   const _OrderHistoryCard({
     required this.order,
+    this.isPast = false,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('MMM d, h:mm a');
+    final timeFormat = DateFormat('h:mm a');
 
     return Container(
       decoration: BoxDecoration(
@@ -244,6 +295,7 @@ class _OrderHistoryCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -281,14 +333,24 @@ class _OrderHistoryCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Text(
-                      dateFormat.format(order.createdAt),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey[400],
+                    if (!isPast)
+                      Text(
+                        'Est. Pickup: ${timeFormat.format(order.estimatedPickupDateTime)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primaryColor,
+                        ),
+                      )
+                    else
+                      Text(
+                        dateFormat.format(order.createdAt),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[400],
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -331,6 +393,25 @@ class _OrderHistoryCard extends StatelessWidget {
                               color: Colors.grey[500],
                             ),
                           ),
+                          if (isPast) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              'Ordered: ${timeFormat.format(order.createdAt)}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            if (order.pickedUpAt != null ||
+                                order.lastUpdate != null)
+                              Text(
+                                'Completed: ${timeFormat.format(order.pickedUpAt ?? order.lastUpdate!)}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                          ],
                         ],
                       ),
                     ),

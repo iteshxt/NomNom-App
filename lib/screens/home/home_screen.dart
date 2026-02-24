@@ -48,16 +48,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: AppTheme.secondaryColor,
+                color: AppTheme.primaryColor,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: selectedOutletId,
+                  dropdownColor: AppTheme.primaryColor,
                   icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                      color: AppTheme.primaryColor, size: 20),
+                      color: Colors.white, size: 20),
                   style: const TextStyle(
-                    color: AppTheme.primaryColor,
+                    color: Colors.white,
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -255,14 +256,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         right: 16,
                         top: 8,
                         bottom: hasItems ? 100 : 24),
-                    sliver: SliverGrid(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 0.72,
-                      ),
+                    sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           return MenuItemCard(
@@ -350,19 +344,16 @@ class _SkeletonMenu extends StatelessWidget {
   const _SkeletonMenu();
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: 4,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 0.72,
-      ),
       itemBuilder: (context, index) => Container(
+        height: 140,
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
       ),
     );

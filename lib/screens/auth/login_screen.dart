@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../config/theme.dart';
 import '../../providers/index.dart';
 
@@ -49,8 +50,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           );
 
       if (mounted) {
-        ref.read(isGuestModeProvider.notifier).state = false;
-        context.go('/home');
+        if (mounted) {
+          ref.read(isGuestModeProvider.notifier).state = false;
+          context.go('/home');
+        }
       }
     } catch (e) {
       if (mounted) {

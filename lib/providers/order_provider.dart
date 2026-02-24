@@ -24,7 +24,9 @@ final orderHistoryProvider = StreamProvider<List<Order>>((ref) async* {
       final orders = await orderService.getOrderHistory(user.id);
       yield orders;
     } catch (e) {
-      // Keep existing data on error or yield empty
+      // Keep existing data on error
+      // If no data yet, it stays in loading state (AsyncLoading)
+      print('OrderHistoryProvider: Failed to fetch orders: $e');
     }
     await Future.delayed(const Duration(seconds: 10));
   }
@@ -44,8 +46,15 @@ final specificOrderTrackingProvider =
 
   // Polling every 3 seconds for order status updates
   while (true) {
-    final tracking = await orderService.getOrderTracking(orderId);
-    yield tracking;
+    try {
+      final tracking = await orderService.getOrderTracking(orderId);
+      // Only yield if we got a result (tracking or explicit null for not found)
+      // If it throws (Network error), we catch below and don't yield, preserving old state.
+      yield tracking;
+    } catch (e) {
+      // Log error but keep previous state
+      print('OrderTrackingProvider: Failed to track order $orderId: $e');
+    }
     await Future.delayed(const Duration(seconds: 3));
   }
 });

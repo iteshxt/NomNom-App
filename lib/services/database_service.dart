@@ -3,7 +3,7 @@ import 'package:mongo_dart/mongo_dart.dart';
 
 class DatabaseService {
   static const String _connectionString =
-      'mongodb+srv://unibites-admin123:ZYpJWpuBmsvzzsFd@unibites-db.e6bcq2m.mongodb.net/unibites?appName=unibites-db&tls=true&authSource=admin';
+      'mongodb+srv://unibites-admin123:ZYpJWpuBmsvzzsFd@unibites-db.e6bcq2m.mongodb.net/unibites?appName=unibites-db&tls=true&authSource=admin&retryWrites=true&w=majority&socketTimeoutMS=45000&connectTimeoutMS=45000&maxIdleTimeMS=120000';
 
   static Db? _db;
 
